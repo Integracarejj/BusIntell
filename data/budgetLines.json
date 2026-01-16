@@ -1,0 +1,337 @@
+{
+    "expenses": [
+        {
+            "type": "expense",
+            "category": "Marketing",
+            "subCategory": "Marketing Contracted Services",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Marketing_Contracted",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Marketing",
+            "subCategory": "1055 Marketing Collaterals",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Marketing_Collaterals",
+            "glCode": "71202",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Marketing",
+            "subCategory": "1055 Marketing Community",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Marketing_Community",
+            "glCode": "71203",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "IT",
+            "subCategory": "Office - IT Gear & Communication",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_IT_Gear_Communication",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "IT",
+            "subCategory": "Office - IT Software & Subscription",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_IT_Software_Subscriptions",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "IT",
+            "subCategory": "Office - IT Service",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_IT_Service",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Operations",
+            "subCategory": "Marketing Contracted Services",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Marketing_Contracted",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Operations",
+            "subCategory": "Equipment Lease",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Equipment_Leases",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Operations",
+            "subCategory": "Contract Services",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Contracted_Services",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Operations",
+            "subCategory": "Bldg Maint/Repair",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_bmr",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Operations",
+            "subCategory": "Minor Equipment",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Minor_Equipment",
+            "glCode": "61102",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Operations",
+            "subCategory": "Program Costs - Operations Supplies",
+            "budgetMethod": "PRD budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Operations_Supplies",
+            "glCode": "73009",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Food & Linens",
+            "subCategory": "Program Costs - Linen",
+            "budgetMethod": "PRD budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Linens",
+            "glCode": "73006",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Food & Linens",
+            "subCategory": "(All)",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_FoodPRD",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Staffing & Wages",
+            "subCategory": "CCC",
+            "budgetMethod": "Wage Rates & Increases",
+            "community": "Problems?(Ops. ticket - Budgets)",
+            "driverTag": "Suggestions?(Click here)",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Staffing & Wages",
+            "subCategory": "Wages - Bonus",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Bonuses",
+            "glCode": "51202",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Staffing & Wages",
+            "subCategory": "1090 Employee Recognition",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Employee_Recognition",
+            "glCode": "53201",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Staffing & Wages",
+            "subCategory": "1090 Seminars/Conferences",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Seminars_Conferences",
+            "glCode": "53202",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Insurance",
+            "subCategory": "(All)",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Insurance",
+            "glCode": null,
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Consulting & Permits",
+            "subCategory": "Prof Serv - Consulting",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Consulting",
+            "glCode": "72002",
+            "amount": null
+        },
+        {
+            "type": "expense",
+            "category": "Consulting & Permits",
+            "subCategory": "Licenses/Permits",
+            "budgetMethod": "Bottom-up budget-setting",
+            "community": "CCC",
+            "driverTag": "bt_Licenses_Permits",
+            "glCode": "61301",
+            "amount": null
+        }
+    ],
+    "revenues": [
+        {
+            "type": "revenue",
+            "category": "Rent Revenue",
+            "subCategory": "Base Rent",
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Rent Roll",
+            "amount": 5675952.17,
+            "period": "2026",
+            "notes": "2026 rent: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Rent Revenue",
+            "subCategory": "Base Rent",
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Rent Roll",
+            "amount": 5675952.17,
+            "period": null,
+            "notes": "Room-specific street-rate price adjustments: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Rent Revenue",
+            "subCategory": "Base Rent",
+            "community": null,
+            "budgetMethod": "Driver-based",
+            "driver": "Rent Roll",
+            "amount": null,
+            "period": null,
+            "notes": "Rent roll"
+        },
+        {
+            "type": "revenue",
+            "category": "Care Revenue",
+            "subCategory": null,
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Care Levels / Points",
+            "amount": 5675952.17,
+            "period": "2026",
+            "notes": "2026 care revenue: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Concessions",
+            "subCategory": null,
+            "community": null,
+            "budgetMethod": "Driver-based",
+            "driver": "Concessions Policy",
+            "amount": 5675952.17,
+            "period": null,
+            "notes": "Basic concessions policy"
+        },
+        {
+            "type": "revenue",
+            "category": "Move-ins / Move-outs",
+            "subCategory": null,
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Move-Ins / Move-Outs",
+            "amount": 5675952.17,
+            "period": null,
+            "notes": "Move-Ins and Move-Outs: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Rate Increases / Second-person fees",
+            "subCategory": null,
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Rate Increase & 2nd Person",
+            "amount": 5675952.17,
+            "period": "2026",
+            "notes": "2026 rate increase dates and 2nd-person fees: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Community fees / Trend",
+            "subCategory": null,
+            "community": null,
+            "budgetMethod": "Driver-based",
+            "driver": "Community Fees / Trend",
+            "amount": null,
+            "period": null,
+            "notes": "Trend charts"
+        },
+        {
+            "type": "revenue",
+            "category": "Community fees / Trend",
+            "subCategory": null,
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Community Fees / Trend",
+            "amount": 5675952.17,
+            "period": null,
+            "notes": "Community fees: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Revenue Summary",
+            "subCategory": null,
+            "community": "Clearfield",
+            "budgetMethod": "Driver-based",
+            "driver": "Mixed",
+            "amount": null,
+            "period": null,
+            "notes": "Assessing impact of different revenue levers: Clearfield"
+        },
+        {
+            "type": "revenue",
+            "category": "Revenue Summary",
+            "subCategory": null,
+            "community": null,
+            "budgetMethod": "Driver-based",
+            "driver": "Mixed",
+            "amount": 0.02,
+            "period": "2024",
+            "notes": "out-year annual revenue increase est (applies only half in first out-year because first out-year assumptions are based on December 2024 only)"
+        }
+    ]
+}
