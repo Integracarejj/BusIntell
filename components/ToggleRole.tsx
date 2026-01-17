@@ -1,14 +1,7 @@
 
-// components/ToggleRole.tsx
 "use client";
-
 type Role = "AGM" | "Executive";
-
-type ToggleRoleProps = {
-    role: Role;
-    setRole: (role: Role) => void;
-};
-
+type ToggleRoleProps = { role: Role; setRole: (role: Role) => void; };
 export default function ToggleRole({ role, setRole }: ToggleRoleProps) {
     return (
         <div className="flex items-center justify-between">

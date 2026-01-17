@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/JeremyJoyner/code/budgetintelligence/app/agm/insights/page.tsx"],"sourcesContent":["\r\n// app/agm/insights/page.tsx\r\nexport default function AgmInsightsPage() {\r\n    return (\r\n        <div className=\"space-y-3\">\r\n            <h1 className=\"text-xl font-semibold text-slate-900\">Insights</h1>\r\n            <p className=\"text-sm text-slate-600\">\r\n                Narrative+visuals for AGM attention and actions. (Scaffold)\r\n            </p>\r\n            <div className=\"rounded-xl border border-slate-200 bg-white p-6 shadow-sm\">\r\n                <p className=\"text-sm text-slate-600\">\r\n                    Later: use <code>InsightCard</code> with mocked AI output from{' '}\r\n                    <code>lib/ai.ts</code>.\r\n                </p>\r\n            </div>\r\n        </div>\r\n    );\r\n}\r\n"],"names":[],"mappings":"AACA,4BAA4B;;;;;;;AACb,SAAS;IACpB,qBACI,8OAAC;QAAI,WAAU;;0BACX,8OAAC;gBAAG,WAAU;0BAAuC;;;;;;0BACrD,8OAAC;gBAAE,WAAU;0BAAyB;;;;;;0BAGtC,8OAAC;gBAAI,WAAU;0BACX,cAAA,8OAAC;oBAAE,WAAU;;wBAAyB;sCACvB,8OAAC;sCAAK;;;;;;wBAAkB;wBAA4B;sCAC/D,8OAAC;sCAAK;;;;;;wBAAgB;;;;;;;;;;;;;;;;;;AAK1C"}}]
+}

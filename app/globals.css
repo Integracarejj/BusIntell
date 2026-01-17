@@ -1,13 +1,26 @@
+/* app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html,
-body {
-    height: 100%;
+/* Keep the rest simple and CSS-only so the parser is happy */
+html {
+    color-scheme: light;
 }
 
 body {
-    background-color: #f3f4f6;
-    /* gray-100 fallback */
+    background-color: hsl(210 20% 98%);
+    /* light slate-ish */
+    color: rgb(30 41 59);
+    /* slate-800 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Accessible focus ring */
+:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(99 102 241);
+    /* indigo-500 */
+    border-radius: 8px;
 }

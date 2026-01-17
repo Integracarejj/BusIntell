@@ -2,41 +2,54 @@
 // components/Sidebar.tsx
 "use client";
 
-import { useState } from "react";
-import ToggleRole from "./ToggleRole";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import clsx from "clsx";
 
-type Role = "AGM" | "Executive";
+const nav = [
+    { label: "Overview", href: "/" },
+    { label: "Budget", href: "/agm/budget" },
+    { label: "Forecast", href: "/agm/forecast" },
+    { label: "Rollups", href: "/agm/rollups" },
+    { label: "Insights", href: "/agm/insights" },
+];
 
 export default function Sidebar() {
-    const [role, setRole] = useState<Role>("AGM");
-
-    const agmLinks = ["Overview", "Budget", "Forecast", "Rollups", "Insights"];
-    const execLinks = ["Portfolio", "Variance", "Trends", "Insights"];
-    const links = role === "Executive" ? execLinks : agmLinks;
+    const pathname = usePathname();
 
     return (
-        <aside className="w-64 bg-slate-900 text-slate-100 flex flex-col">
-            {/* Logo / Title */}
-            <div className="px-6 py-4 text-xl font-semibold border-b border-slate-700">
+        <aside className="flex h-full w-64 flex-col border-r border-slate-200 bg-slate-950/95 text-slate-100">
+            <div className="px-4 pb-2 pt-4 text-lg font-semibold tracking-tight">
                 Budget Intelligence
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-4 py-6 space-y-2">
-                {links.map((item) => (
-                    <a
-                        key={item}
-                        href="#"
-                        className="block rounded-md px-3 py-2 text-sm hover:bg-slate-800 transition"
-                    >
-                        {item}
-                    </a>
-                ))}
+            <nav className="flex-1 px-2 py-2">
+                {nav.map((item) => {
+                    const active =
+                        item.href === "/"
+                            ? pathname === "/"
+                            : pathname.startsWith(item.href);
+                    return (
+                        <Link
+                            key={item.href}
+                            href={item.href}
+                            className={clsx(
+                                "mb-1 block rounded-md px-3 py-2 text-sm transition",
+                                "focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                                active
+                                    ? "bg-white/10 text-white"
+                                    : "text-slate-300 hover:bg-white/5 hover:text-white"
+                            )}
+                        >
+                            {item.label}
+                        </Link>
+                    );
+                })}
             </nav>
 
-            {/* Role Toggle */}
-            <div className="px-4 py-4 border-t border-slate-700">
-                <ToggleRole role={role} setRole={setRole} />
+            {/* Role toggle area placeholder remains; we can wire it next */}
+            <div className="border-t border-white/10 p-3 text-xs text-slate-400">
+                Role toggle here
             </div>
         </aside>
     );

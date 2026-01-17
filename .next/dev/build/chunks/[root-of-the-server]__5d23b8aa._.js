@@ -19,6 +19,7 @@ module.exports = mod;
 }),
 "[project]/postcss.config.cjs [postcss] (ecmascript)", ((__turbopack_context__, module, exports) => {
 
+// postcss.config.js  ← at project root
 module.exports = {
     plugins: {
         tailwindcss: {},
