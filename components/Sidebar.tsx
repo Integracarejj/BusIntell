@@ -7,7 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 
 /**
  * ======== Sticky Home + Handle Placement (easy to tweak) ========
- * These are viewport-fixed to avoid drifting when the sidebar expands.
+ * These are viewport-fixed so they never drift as the sidebar expands/collapses.
+ * Adjust the constants to nudge positioning without touching layout code.
  */
 export const HOME_TOP_CLASS = "top-2";
 export const HOME_LEFT_CLASS = "left-2";
@@ -16,15 +17,15 @@ export const HANDLE_TOP_CLASS = "top-14";
 export const HANDLE_LEFT_CLASS = "left-2";
 
 // Visual sizes
-const HOME_ICON_SIZE = "h-8 w-8"; // Home icon size
-const HANDLE_SIZE = "h-7 w-7";    // Smaller so it fits nicely inside collapsed rail
+const HOME_ICON_SIZE = "h-8 w-8";  // Home icon size
+const HANDLE_SIZE = "h-7 w-7";     // Smaller so it fits nicely inside collapsed rail
 
-/** Lightweight cx helper */
+/** Simple class joiner (no extra deps) */
 function cx(...classes: Array<string | false | null | undefined>) {
     return classes.filter(Boolean).join(" ");
 }
 
-/** Inline SVG icons (no extra dependencies) */
+/** Inline SVG icons (no extra deps) */
 function IconGrid({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden="true">
@@ -42,7 +43,7 @@ function IconTable({ className }: { className?: string }) {
 function IconTrendUp({ className }: { className?: string }) {
     return (
         <svg viewBox="0 0 20 20" fill="currentColor" className={className} aria-hidden="true">
-            <path d="M3 14a1 1 0 100 2h14a1 1 0 100-2H3zm2.293-5.707a1 1 0 011.414 0L9 10.586l3.293-3.293A1 1 0 0113 7h3a1 1 0 110 2h-2.586l-3.707 3.707a1 1 0 01-1.414 0L6 9.414 5.707 9.707a1 1 0 01-1.414-1.414z" />
+            <path d="M3 14a1 1 0 100 2h14a1 1 0 100-2H3zm2.293-5.707a1 1 0 011.414 0L9 10.586l3.293-3.293A1 1 0 0113 7h3a1 1 0 110 2h-2.586l-3.707 3.707a1 1 0 01-1.414 0L6 9.414l-.293.293a1 1 0 11-1.414-1.414z" />
         </svg>
     );
 }
@@ -127,11 +128,14 @@ export default function Sidebar() {
                         "transition-colors"
                     )}
                 >
-                    {/* Corrected src so your SVG renders from /public */}
+                    {/* PNG asset from /public */}
                     <img
-                        src="/money-management.svg"
-                        alt="Budget Intelligence home"
-                        className={cx(HOME_ICON_SIZE, "p-1")}
+                        src="/money-management.png"
+                        alt=""
+                        width={32}
+                        height={32}
+                        className={HOME_ICON_SIZE}
+                        draggable={false}
                     />
                 </Link>
             </div>
@@ -178,8 +182,8 @@ export default function Sidebar() {
                 )}
                 aria-label="Primary"
             >
-                {/* Extra top padding so fixed buttons don't overlap; extra bottom padding so the role toggle clears floating widgets */}
-                <nav className="flex h-full flex-col overflow-y-auto pt-24 pb-24">
+                {/* Extra top padding so fixed buttons don't overlap; extra bottom padding to clear any bottom overlays */}
+                <nav className="flex h-full flex-col overflow-y-auto pt-24 pb-28">
                     <ul className="px-2">
                         {NAV_ITEMS.map((item) => {
                             const active =
@@ -212,7 +216,7 @@ export default function Sidebar() {
                         })}
                     </ul>
 
-                    {/* === Single Role Toggle (only here), positioned safely above bottom widgets === */}
+                    {/* === Single Role Toggle (only here) === */}
                     <div className="mt-auto px-2 pt-4">
                         {collapsed ? (
                             <button
@@ -260,3 +264,4 @@ export default function Sidebar() {
         </>
     );
 }
+``

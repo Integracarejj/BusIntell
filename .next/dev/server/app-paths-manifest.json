@@ -1,7 +1,4 @@
 {
   "/agm/budget/page": "app/agm/budget/page.js",
-  "/agm/forecast/page": "app/agm/forecast/page.js",
-  "/agm/insights/page": "app/agm/insights/page.js",
-  "/agm/rollups/page": "app/agm/rollups/page.js",
   "/page": "app/page.js"
 }
