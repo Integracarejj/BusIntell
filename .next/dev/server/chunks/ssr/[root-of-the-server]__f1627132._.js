@@ -29,6 +29,13 @@ const metadata = {
 };
 const cards = [
     {
+        title: "Budget Updater",
+        description: "Open an editable grid to review and update budget line items.",
+        href: "/agm/budget",
+        badge: "AGM",
+        testId: "card-budget"
+    },
+    {
         title: "Spend Overview",
         description: "Community spend vs. plan with quick drill-through to attention items.",
         href: "/agm/insights",
@@ -48,13 +55,6 @@ const cards = [
         href: "/agm/forecast",
         badge: "AGM",
         testId: "card-forecast"
-    },
-    {
-        title: "Budget Updater",
-        description: "Open an editable grid to review and update budget line items.",
-        href: "/agm/budget",
-        badge: "AGM",
-        testId: "card-budget"
     }
 ];
 function Page() {
@@ -84,7 +84,7 @@ function Page() {
                                         children: title
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.tsx",
-                                        lineNumber: 79,
+                                        lineNumber: 80,
                                         columnNumber: 29
                                     }, this),
                                     badge ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -92,13 +92,13 @@ function Page() {
                                         children: badge
                                     }, void 0, false, {
                                         fileName: "[project]/app/page.tsx",
-                                        lineNumber: 81,
+                                        lineNumber: 82,
                                         columnNumber: 33
                                     }, this) : null
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 78,
+                                lineNumber: 79,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -106,7 +106,7 @@ function Page() {
                                 children: description
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 86,
+                                lineNumber: 87,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
@@ -122,23 +122,23 @@ function Page() {
                                     strokeLinejoin: "round"
                                 }, void 0, false, {
                                     fileName: "[project]/app/page.tsx",
-                                    lineNumber: 95,
+                                    lineNumber: 96,
                                     columnNumber: 29
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 89,
+                                lineNumber: 90,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, title, true, {
                         fileName: "[project]/app/page.tsx",
-                        lineNumber: 65,
+                        lineNumber: 66,
                         columnNumber: 21
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 60,
+                lineNumber: 61,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
@@ -154,12 +154,12 @@ function Page() {
                                 children: "Go to Budget"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 111,
+                                lineNumber: 112,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 110,
+                            lineNumber: 111,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -169,12 +169,12 @@ function Page() {
                                 children: "Go to Forecast"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 119,
+                                lineNumber: 120,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 118,
+                            lineNumber: 119,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -184,12 +184,12 @@ function Page() {
                                 children: "Go to Rollups"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 127,
+                                lineNumber: 128,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 126,
+                            lineNumber: 127,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("li", {
@@ -199,29 +199,29 @@ function Page() {
                                 children: "Go to Insights"
                             }, void 0, false, {
                                 fileName: "[project]/app/page.tsx",
-                                lineNumber: 135,
+                                lineNumber: 136,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/page.tsx",
-                            lineNumber: 134,
+                            lineNumber: 135,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/page.tsx",
-                    lineNumber: 109,
+                    lineNumber: 110,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/page.tsx",
-                lineNumber: 108,
+                lineNumber: 109,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/page.tsx",
-        lineNumber: 56,
+        lineNumber: 57,
         columnNumber: 9
     }, this);
 }

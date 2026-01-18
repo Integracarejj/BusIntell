@@ -19,6 +19,14 @@ type Card = {
 
 const cards: Card[] = [
     {
+        title: "Budget Updater",
+        description:
+            "Open an editable grid to review and update budget line items.",
+        href: "/agm/budget",
+        badge: "AGM",
+        testId: "card-budget",
+    },
+    {
         title: "Spend Overview",
         description:
             "Community spend vs. plan with quick drill-through to attention items.",
@@ -41,14 +49,7 @@ const cards: Card[] = [
         badge: "AGM",
         testId: "card-forecast",
     },
-    {
-        title: "Budget Updater",
-        description:
-            "Open an editable grid to review and update budget line items.",
-        href: "/agm/budget",
-        badge: "AGM",
-        testId: "card-budget",
-    },
+
 ];
 
 export default function Page() {
