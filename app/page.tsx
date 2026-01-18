@@ -36,40 +36,30 @@ const cards: Card[] = [
     },
     {
         title: "Forecast Summary",
-        description:
-            "Open the forecasting workspace to adjust assumptions and scenarios.",
+        description: "Workspace to adjust assumptions and scenarios.",
         href: "/agm/forecast",
         badge: "AGM",
         testId: "card-forecast",
+    },
+    {
+        title: "Budget Updater",
+        description:
+            "Open an editable grid to review and update budget line items.",
+        href: "/agm/budget",
+        badge: "AGM",
+        testId: "card-budget",
     },
 ];
 
 export default function Page() {
     return (
         <div className="space-y-6">
-            {/* Gradient band to modernize the hero area */}
-            <div
-                className="relative -mx-6 -mt-6 mb-2 h-28 overflow-hidden rounded-b-xl 
-                   bg-gradient-to-r from-indigo-50 via-white to-emerald-50"
-                aria-hidden="true"
-            >
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_20%_20%,rgba(79,70,229,0.08),transparent)]" />
-            </div>
+            {/* Title/description were moved to Header. The gradient band below header has been removed. */}
 
-            <header className="px-1">
-                <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
-                    Budget Intelligence Prototype
-                </h1>
-                <p className="mt-1 max-w-2xl text-sm text-gray-600">
-                    Use the role toggle in the sidebar to switch between AGM and Executive
-                    perspectives. This dashboard surfaces insights, rollups, and forecasts
-                    tailored to each role.
-                </p>
-            </header>
-
+            {/* 4-across card grid on desktop with a little more vertical presence */}
             <section
                 aria-label="Quick entry points"
-                className="grid grid-cols-1 gap-6 md:grid-cols-3"
+                className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4"
             >
                 {cards.map(({ title, description, href, badge, testId }) => (
                     <Link
@@ -77,20 +67,25 @@ export default function Page() {
                         href={href}
                         data-testid={testId}
                         className={[
-                            "group relative block rounded-xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur",
+                            "group relative block rounded-xl border border-slate-200 bg-white p-6 shadow-sm",
                             "transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-md",
                             "focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500",
+                            // Make them a bit taller for presence
+                            "min-h-[140px]",
                         ].join(" ")}
                         aria-label={`${title}: ${description}`}
                     >
                         <div className="flex items-start justify-between">
                             <h3 className="font-medium text-slate-900">{title}</h3>
-                            <span className="rounded-full bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
-                                {badge}
-                            </span>
+                            {badge ? (
+                                <span className="rounded-full bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200">
+                                    {badge}
+                                </span>
+                            ) : null}
                         </div>
-                        <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
-                        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-indigo-400/0 via-indigo-400/20 to-indigo-400/0 opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                            {description}
+                        </p>
                         <svg
                             viewBox="0 0 20 20"
                             fill="none"
@@ -109,7 +104,7 @@ export default function Page() {
                 ))}
             </section>
 
-            {/* Optional quick links row */}
+            {/* Keep the quick links row per your request */}
             <nav aria-label="AGM quick links" className="pt-2">
                 <ul className="flex flex-wrap gap-3 text-sm">
                     <li>
