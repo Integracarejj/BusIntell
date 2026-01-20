@@ -8,17 +8,16 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
 /**
- * BudgetGrid.tsx (AG Grid v35)
- * - Legacy theme (avoids Theming API clash) -> theme="legacy" + legacy CSS files
- * - Grouping: Community -> Type -> Category (shown in a single tree column labeled "Community")
- * - Sorting, Filtering, Resizing
- * - Inline editing for Amount
- * - Bulk edit toolbar: % delta or set fixed amount on selected rows
- * - Pinned bottom total (api.setGridOption('pinnedBottomRowData', ...))
- * - CSV export
+ * BudgetGrid.tsx — AG Grid Community (v35)
+ * Default: ungrouped, unfiltered, CSS theme (Alpine)
+ *
+ * Notes:
+ * - Community edition: no row grouping or set filter. We use Text filters and a flat table by default.
+ * - Fixes Error #239 by explicitly setting theme="legacy" (you import CSS themes).
+ * - Keeps: Editing, Bulk % change, Set Amount, CSV export, Pinned TOTAL (filtered).
  */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ag$2d$grid$2d$react$2f$dist$2f$package$2f$index$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/ag-grid-react/dist/package/index.esm.mjs [app-client] (ecmascript)");
-// ---- REQUIRED in v35+ (modular build): register the community features ----
+// ✅ Community only
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ag$2d$grid$2d$community$2f$dist$2f$package$2f$main$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/ag-grid-community/dist/package/main.esm.mjs [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
@@ -31,7 +30,7 @@ var _s = __turbopack_context__.k.signature();
 __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ag$2d$grid$2d$community$2f$dist$2f$package$2f$main$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ModuleRegistry"].registerModules([
     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$ag$2d$grid$2d$community$2f$dist$2f$package$2f$main$2e$esm$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AllCommunityModule"]
 ]);
-// ----------------------- Helpers -----------------------
+// ---------- helpers ----------
 const fmtUSD = (n)=>new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
@@ -44,43 +43,35 @@ const parseNumber = (v)=>{
     const n = Number(s);
     return Number.isFinite(n) ? n : null;
 };
-const isLeafRow = (node)=>!!node && !node.group;
 function BudgetGrid({ rows }) {
     _s();
     const gridRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
     const apiRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"])(null);
-    // Local copy so we can mutate on edits/bulk operations
     const [rowData, setRowData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
         "BudgetGrid.useState": ()=>rows ?? []
     }["BudgetGrid.useState"]);
-    const [groupOrderA, setGroupOrderA] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true); // A: community->type->category
-    // ----------------------- Column Definitions -----------------------
+    // ---------- columns (Community) ----------
     const columnDefs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "BudgetGrid.useMemo[columnDefs]": ()=>{
             return [
-                // Group keys (hidden in data columns; shown via single-column tree)
                 {
                     headerName: "Community",
                     field: "community",
-                    rowGroup: true,
-                    hide: true,
-                    filter: "agSetColumnFilter"
+                    filter: "agTextColumnFilter",
+                    minWidth: 160
                 },
                 {
                     headerName: "Type",
                     field: "type",
-                    rowGroup: true,
-                    hide: true,
-                    filter: "agSetColumnFilter"
+                    filter: "agTextColumnFilter",
+                    width: 130
                 },
                 {
                     headerName: "Category",
                     field: "category",
-                    rowGroup: true,
-                    hide: true,
-                    filter: "agSetColumnFilter"
+                    filter: "agTextColumnFilter",
+                    minWidth: 160
                 },
-                // Visible columns
                 {
                     headerName: "Subcategory",
                     field: "subCategory",
@@ -102,7 +93,7 @@ function BudgetGrid({ rows }) {
                 {
                     headerName: "Method",
                     field: "budgetMethod",
-                    filter: "agSetColumnFilter",
+                    filter: "agTextColumnFilter",
                     width: 180
                 },
                 {
@@ -114,21 +105,17 @@ function BudgetGrid({ rows }) {
                         "BudgetGrid.useMemo[columnDefs]": (p)=>p.data?.driver ?? p.data?.driverTag ?? null
                     }["BudgetGrid.useMemo[columnDefs]"]
                 },
-                // Amount (editable + aggregated)
                 {
                     headerName: "Amount",
                     field: "amount",
                     type: "rightAligned",
-                    editable: {
-                        "BudgetGrid.useMemo[columnDefs]": (p)=>isLeafRow(p.node)
-                    }["BudgetGrid.useMemo[columnDefs]"],
+                    editable: true,
                     valueParser: {
                         "BudgetGrid.useMemo[columnDefs]": (params)=>parseNumber(params.newValue)
                     }["BudgetGrid.useMemo[columnDefs]"],
                     valueFormatter: {
                         "BudgetGrid.useMemo[columnDefs]": (p)=>typeof p.value === "number" ? fmtUSD(p.value) : "—"
                     }["BudgetGrid.useMemo[columnDefs]"],
-                    aggFunc: "sum",
                     minWidth: 140
                 }
             ];
@@ -143,176 +130,19 @@ function BudgetGrid({ rows }) {
                 minWidth: 140
             })
     }["BudgetGrid.useMemo[defaultColDef]"], []);
-    // Single tree column that shows the group path (Community -> Type -> Category)
-    const autoGroupColumnDef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
-        "BudgetGrid.useMemo[autoGroupColumnDef]": ()=>({
-                headerName: "Community",
-                minWidth: 260,
-                cellRendererParams: {
-                    suppressCount: false
-                }
-            })
-    }["BudgetGrid.useMemo[autoGroupColumnDef]"], []);
-    // ----------------------- Toolbar State/Actions -----------------------
+    // ---------- toolbar state/actions ----------
     const [pctDelta, setPctDelta] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("5"); // default +5%
     const [setValue, setSetValue] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
-    const applyPercentToSelection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[applyPercentToSelection]": ()=>{
-            const api = apiRef.current;
-            if (!api) return;
-            const pct = Number(pctDelta);
-            if (!Number.isFinite(pct)) return;
-            const multiplier = 1 + pct / 100;
-            const updated = [
-                ...rowData
-            ];
-            const idSet = new Set();
-            api.getSelectedNodes().forEach({
-                "BudgetGrid.useCallback[applyPercentToSelection]": (node)=>{
-                    if (!isLeafRow(node)) return;
-                    const idx = node.rowIndex ?? -1;
-                    if (idx < 0 || !updated[idx]) return;
-                    const current = updated[idx].amount ?? 0;
-                    const next = Math.round(current * multiplier);
-                    updated[idx] = {
-                        ...updated[idx],
-                        amount: next
-                    };
-                    idSet.add(idx);
-                }
-            }["BudgetGrid.useCallback[applyPercentToSelection]"]);
-            if (idSet.size > 0) {
-                setRowData(updated);
-                api.refreshCells({
-                    force: true
-                });
-                recomputePinnedTotal();
-            }
-        }
-    }["BudgetGrid.useCallback[applyPercentToSelection]"], [
-        pctDelta,
-        rowData
-    ]);
-    const setFixedAmountForSelection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[setFixedAmountForSelection]": ()=>{
-            const api = apiRef.current;
-            if (!api) return;
-            const nextVal = parseNumber(setValue);
-            if (nextVal === null) return;
-            const updated = [
-                ...rowData
-            ];
-            const idSet = new Set();
-            api.getSelectedNodes().forEach({
-                "BudgetGrid.useCallback[setFixedAmountForSelection]": (node)=>{
-                    if (!isLeafRow(node)) return;
-                    const idx = node.rowIndex ?? -1;
-                    if (idx < 0 || !updated[idx]) return;
-                    updated[idx] = {
-                        ...updated[idx],
-                        amount: nextVal
-                    };
-                    idSet.add(idx);
-                }
-            }["BudgetGrid.useCallback[setFixedAmountForSelection]"]);
-            if (idSet.size > 0) {
-                setRowData(updated);
-                api.refreshCells({
-                    force: true
-                });
-                recomputePinnedTotal();
-            }
-        }
-    }["BudgetGrid.useCallback[setFixedAmountForSelection]"], [
-        setValue,
-        rowData
-    ]);
-    const clearSelection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[clearSelection]": ()=>{
-            apiRef.current?.deselectAll();
-        }
-    }["BudgetGrid.useCallback[clearSelection]"], []);
-    const exportCsv = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[exportCsv]": ()=>{
-            apiRef.current?.exportDataAsCsv({
-                fileName: "budget-grid.csv",
-                processCellCallback: {
-                    "BudgetGrid.useCallback[exportCsv]": (p)=>{
-                        if (p.column.getColId() === "amount" && typeof p.value === "number") {
-                            return p.value; // raw number in CSV, not $-formatted
-                        }
-                        return p.value ?? "";
-                    }
-                }["BudgetGrid.useCallback[exportCsv]"]
-            });
-        }
-    }["BudgetGrid.useCallback[exportCsv]"], []);
-    const toggleGroupOrder = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[toggleGroupOrder]": ()=>{
-            const api = apiRef.current;
-            if (!api) return;
-            const asA = groupOrderA; // current state: A or B
-            // A) community -> type -> category
-            const orderA = [
-                {
-                    colId: "community",
-                    rowGroup: true,
-                    rowGroupIndex: 0
-                },
-                {
-                    colId: "type",
-                    rowGroup: true,
-                    rowGroupIndex: 1
-                },
-                {
-                    colId: "category",
-                    rowGroup: true,
-                    rowGroupIndex: 2
-                }
-            ];
-            // B) type -> community -> category
-            const orderB = [
-                {
-                    colId: "type",
-                    rowGroup: true,
-                    rowGroupIndex: 0
-                },
-                {
-                    colId: "community",
-                    rowGroup: true,
-                    rowGroupIndex: 1
-                },
-                {
-                    colId: "category",
-                    rowGroup: true,
-                    rowGroupIndex: 2
-                }
-            ];
-            const params = {
-                state: asA ? orderB : orderA,
-                defaultState: {
-                    rowGroup: false,
-                    rowGroupIndex: null
-                }
-            };
-            api.applyColumnState(params);
-            setGroupOrderA(!asA);
-        }
-    }["BudgetGrid.useCallback[toggleGroupOrder]"], [
-        groupOrderA
-    ]);
-    // ----------------------- Grid Lifecycle -----------------------
     const recomputePinnedTotal = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "BudgetGrid.useCallback[recomputePinnedTotal]": ()=>{
             const api = apiRef.current;
             if (!api) return;
             let total = 0;
-            // Only sum leaf displayed nodes (respects filters)
-            api.forEachLeafNode({
+            // Sum displayed rows after filter/sort
+            api.forEachNodeAfterFilterAndSort({
                 "BudgetGrid.useCallback[recomputePinnedTotal]": (node)=>{
-                    if (node.displayed && node.data && typeof node.data.amount === "number") {
-                        total += node.data.amount;
-                    }
+                    const d = node.data;
+                    if (d && typeof d.amount === "number") total += d.amount;
                 }
             }["BudgetGrid.useCallback[recomputePinnedTotal]"]);
             api.setGridOption("pinnedBottomRowData", [
@@ -331,50 +161,113 @@ function BudgetGrid({ rows }) {
             ]);
         }
     }["BudgetGrid.useCallback[recomputePinnedTotal]"], []);
+    const applyPercentToSelection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "BudgetGrid.useCallback[applyPercentToSelection]": ()=>{
+            const api = apiRef.current;
+            if (!api) return;
+            const pct = Number(pctDelta);
+            if (!Number.isFinite(pct)) return;
+            const multiplier = 1 + pct / 100;
+            const updated = [
+                ...rowData
+            ];
+            const selected = api.getSelectedRows();
+            if (!selected.length) return;
+            let touched = 0;
+            for (const r of selected){
+                const idx = updated.indexOf(r);
+                if (idx >= 0) {
+                    const current = updated[idx].amount ?? 0;
+                    const next = Math.round(current * multiplier);
+                    updated[idx] = {
+                        ...updated[idx],
+                        amount: next
+                    };
+                    touched++;
+                }
+            }
+            if (touched > 0) {
+                setRowData(updated);
+                api.refreshCells({
+                    force: true
+                });
+                recomputePinnedTotal();
+            }
+        }
+    }["BudgetGrid.useCallback[applyPercentToSelection]"], [
+        pctDelta,
+        rowData,
+        recomputePinnedTotal
+    ]);
+    const setFixedAmountForSelection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "BudgetGrid.useCallback[setFixedAmountForSelection]": ()=>{
+            const api = apiRef.current;
+            if (!api) return;
+            const nextVal = parseNumber(setValue);
+            if (nextVal === null) return;
+            const updated = [
+                ...rowData
+            ];
+            const selected = api.getSelectedRows();
+            if (!selected.length) return;
+            let touched = 0;
+            for (const r of selected){
+                const idx = updated.indexOf(r);
+                if (idx >= 0) {
+                    updated[idx] = {
+                        ...updated[idx],
+                        amount: nextVal
+                    };
+                    touched++;
+                }
+            }
+            if (touched > 0) {
+                setRowData(updated);
+                api.refreshCells({
+                    force: true
+                });
+                recomputePinnedTotal();
+            }
+        }
+    }["BudgetGrid.useCallback[setFixedAmountForSelection]"], [
+        setValue,
+        rowData,
+        recomputePinnedTotal
+    ]);
+    const clearSelection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "BudgetGrid.useCallback[clearSelection]": ()=>apiRef.current?.deselectAll()
+    }["BudgetGrid.useCallback[clearSelection]"], []);
+    const exportCsv = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
+        "BudgetGrid.useCallback[exportCsv]": ()=>apiRef.current?.exportDataAsCsv({
+                fileName: "budget-grid.csv",
+                processCellCallback: {
+                    "BudgetGrid.useCallback[exportCsv]": (p)=>{
+                        if (p.column.getColId() === "amount" && typeof p.value === "number") return p.value; // raw in CSV
+                        return p.value ?? "";
+                    }
+                }["BudgetGrid.useCallback[exportCsv]"]
+            })
+    }["BudgetGrid.useCallback[exportCsv]"], []);
+    // ---------- lifecycle ----------
     const onGridReady = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "BudgetGrid.useCallback[onGridReady]": (e)=>{
             apiRef.current = e.api;
-            // Grouping defined via colDefs (rowGroup: true on hidden key columns)
-            // Auto-size visible columns
             e.api.autoSizeAllColumns?.(false);
             recomputePinnedTotal();
         }
     }["BudgetGrid.useCallback[onGridReady]"], [
         recomputePinnedTotal
     ]);
-    const onModelUpdated = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[onModelUpdated]": ()=>{
-            recomputePinnedTotal();
-        }
-    }["BudgetGrid.useCallback[onModelUpdated]"], [
+    const onModelUpdated = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])(recomputePinnedTotal, [
         recomputePinnedTotal
     ]);
-    const onFilterChanged = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[onFilterChanged]": ()=>{
-            recomputePinnedTotal();
-        }
-    }["BudgetGrid.useCallback[onFilterChanged]"], [
+    const onFilterChanged = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])(recomputePinnedTotal, [
         recomputePinnedTotal
     ]);
     const onCellValueChanged = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
-        "BudgetGrid.useCallback[onCellValueChanged]": (e)=>{
-            const idx = e.node.rowIndex ?? -1;
-            if (idx >= 0) {
-                setRowData({
-                    "BudgetGrid.useCallback[onCellValueChanged]": (prev)=>{
-                        if (!prev[idx]) return prev;
-                        const next = [
-                            ...prev
-                        ];
-                        next[idx] = {
-                            ...next[idx],
-                            amount: parseNumber(e.newValue) ?? 0
-                        };
-                        return next;
-                    }
-                }["BudgetGrid.useCallback[onCellValueChanged]"]);
-                recomputePinnedTotal();
-            }
+        "BudgetGrid.useCallback[onCellValueChanged]": (_e)=>{
+            // valueParser already normalized; just recompute total
+            recomputePinnedTotal();
         }
     }["BudgetGrid.useCallback[onCellValueChanged]"], [
         recomputePinnedTotal
@@ -382,10 +275,10 @@ function BudgetGrid({ rows }) {
     const getRowId = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "BudgetGrid.useCallback[getRowId]": (p)=>{
             const d = p.data;
-            return `${d.community ?? ""}|${d.type ?? ""}|${d.category ?? ""}|${d.subCategory ?? ""}|${d.period ?? ""}`;
+            return `${d.community ?? ""}${d.type ?? ""}${d.category ?? ""}${d.subCategory ?? ""}${d.period ?? ""}`;
         }
     }["BudgetGrid.useCallback[getRowId]"], []);
-    // ----------------------- Render -----------------------
+    // ---------- render ----------
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
         "aria-label": "Budget grid",
         className: "space-y-3",
@@ -398,7 +291,7 @@ function BudgetGrid({ rows }) {
                         children: "Bulk Edit (selection)"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 347,
+                        lineNumber: 229,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -407,7 +300,7 @@ function BudgetGrid({ rows }) {
                         children: "Percent change"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 351,
+                        lineNumber: 231,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -421,21 +314,22 @@ function BudgetGrid({ rows }) {
                         style: {
                             width: 90
                         },
-                        placeholder: "%"
+                        placeholder: "%",
+                        title: "Enter % and click Apply to adjust Amount for selected rows"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 354,
+                        lineNumber: 232,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                         type: "button",
-                        "aria-label": "Apply percent change to selected rows",
                         onClick: applyPercentToSelection,
                         className: "rounded-md bg-teal-600 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
+                        title: "Apply % change to Amount on selected rows",
                         children: "Apply % Δ"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 365,
+                        lineNumber: 240,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -443,7 +337,7 @@ function BudgetGrid({ rows }) {
                         children: "|"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 374,
+                        lineNumber: 248,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -452,7 +346,7 @@ function BudgetGrid({ rows }) {
                         children: "Set fixed amount"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 376,
+                        lineNumber: 250,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -466,21 +360,22 @@ function BudgetGrid({ rows }) {
                         style: {
                             width: 140
                         },
-                        placeholder: "Set amount ($)"
+                        placeholder: "Set amount ($)",
+                        title: "Set a fixed Amount on all selected rows"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 379,
+                        lineNumber: 251,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                         type: "button",
-                        "aria-label": "Set fixed amount on selected rows",
                         onClick: setFixedAmountForSelection,
                         className: "rounded-md bg-slate-700 px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
+                        title: "Overwrite Amount on selected rows",
                         children: "Set Amount"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 390,
+                        lineNumber: 259,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -488,46 +383,33 @@ function BudgetGrid({ rows }) {
                         children: "|"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 399,
+                        lineNumber: 267,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                         type: "button",
-                        "aria-label": "Clear selection",
                         onClick: clearSelection,
                         className: "rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
                         children: "Clear Selection"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 401,
+                        lineNumber: 269,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                         type: "button",
-                        "aria-label": "Export to CSV",
                         onClick: exportCsv,
                         className: "rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
                         children: "Export CSV"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 410,
-                        columnNumber: 17
-                    }, this),
-                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                        type: "button",
-                        "aria-label": "Toggle group order",
-                        onClick: toggleGroupOrder,
-                        className: "rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
-                        children: "Toggle Group Order"
-                    }, void 0, false, {
-                        fileName: "[project]/components/BudgetGrid.tsx",
-                        lineNumber: 419,
+                        lineNumber: 275,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tsx",
-                lineNumber: 346,
+                lineNumber: 228,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -541,38 +423,33 @@ function BudgetGrid({ rows }) {
                     rowData: rowData,
                     columnDefs: columnDefs,
                     defaultColDef: defaultColDef,
-                    autoGroupColumnDef: autoGroupColumnDef,
-                    // 👇 single tree column shows Community -> Type -> Category
-                    groupDisplayType: "singleColumn",
                     suppressDragLeaveHidesColumns: true,
                     animateRows: true,
-                    // NOTE: enableRangeSelection removed (Enterprise module)
                     rowSelection: "multiple",
                     onGridReady: onGridReady,
                     onModelUpdated: onModelUpdated,
                     onFilterChanged: onFilterChanged,
                     onCellValueChanged: onCellValueChanged,
                     getRowId: getRowId,
-                    // 👇 Force legacy theme so legacy CSS is valid and no theming clash occurs
                     theme: "legacy"
                 }, void 0, false, {
                     fileName: "[project]/components/BudgetGrid.tsx",
-                    lineNumber: 435,
+                    lineNumber: 285,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tsx",
-                lineNumber: 430,
+                lineNumber: 284,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/BudgetGrid.tsx",
-        lineNumber: 344,
+        lineNumber: 226,
         columnNumber: 9
     }, this);
 }
-_s(BudgetGrid, "GrT/HH1WJhsAn9GHyXGNxZxeoWI=");
+_s(BudgetGrid, "WxRO4T97jRVqYJkfjfexhIVrOJY=");
 _c = BudgetGrid;
 var _c;
 __turbopack_context__.k.register(_c, "BudgetGrid");

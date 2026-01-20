@@ -1,29 +1,15 @@
 
 // app/agm/budget/page.tsx
-// Server Component (App Router) — loads mock data, shows summary cards, mounts BudgetGrid (AG Grid).
-// No new deps here; grid is in a separate client component: components/BudgetGrid.tsx
+// Server Component (App Router) — loads mock data, shows summary cards, mounts BudgetGrid (TanStack).
+// NOTE: We now import the TanStack grid component, NOT the AG Grid one.
 
 export const runtime = "nodejs";
 
 import { promises as fs } from "fs";
 import path from "path";
-import BudgetGrid from "../../../components/BudgetGrid";
+import BudgetGrid, { type BudgetLine } from "../../../components/BudgetGrid.tanstack";
 
-// Temporary local type (we'll move to /types/budgetLine.ts later)
-type BudgetLine = {
-    type: "revenue" | "expense";
-    community: string;
-    category: string;
-    subCategory?: string | null;
-    budgetMethod?: string | null;
-    driver?: string | null;
-    driverTag?: string | null;
-    glCode?: string | null;
-    period?: string | number | null; // e.g., "2026-01" or "2026"
-    amount?: number | null;
-};
-
-// ---- helpers (will move to /lib/data.ts later) ----
+// ---- helpers (kept local; we can move to /lib later) ----
 async function loadBudgetLines(): Promise<BudgetLine[]> {
     const filePath = path.join(process.cwd(), "data", "budgetLines.json");
     const raw = await fs.readFile(filePath, "utf-8");
@@ -32,7 +18,7 @@ async function loadBudgetLines(): Promise<BudgetLine[]> {
     // Normalize shapes to a single array:
     // A) Flat array
     if (Array.isArray(json)) return json as BudgetLine[];
-    // B) { revenues: [], expenses: [] }
+    // B) { revenues: [], expenses: [] } or { lines: [] }
     const lines: BudgetLine[] = [];
     if (Array.isArray(json.revenues)) lines.push(...json.revenues);
     if (Array.isArray(json.expenses)) lines.push(...json.expenses);
@@ -55,8 +41,40 @@ function fmtCurrency(n: number) {
     }).format(n);
 }
 
+/**
+ * Optional: clone an additional 2025 dataset from the base lines.
+ * - If period is "YYYY-MM" -> replace the year with "2025"
+ * - If period is "YYYY"    -> set to "2025"
+ * - If null/number         -> tag as "2025"
+ * You can comment this out if you don't want 2025 mock data yet.
+ */
+function with2025(lines: BudgetLine[], upliftPct?: number): BudgetLine[] {
+    const uplift = typeof upliftPct === "number" ? 1 + upliftPct / 100 : 1;
+    const replaceYear = (p: string) => p.replace(/^\d{4}/, "2025");
+    const clones: BudgetLine[] = [];
+
+    for (const d of lines) {
+        let period: string | number | null = d.period ?? null;
+        if (typeof period === "string") {
+            if (/^\d{4}-\d{2}$/.test(period)) period = replaceYear(period);
+            else if (/^\d{4}$/.test(period)) period = "2025";
+        } else {
+            period = "2025";
+        }
+        const amount =
+            typeof d.amount === "number" ? Math.round(d.amount * uplift) : d.amount ?? null;
+
+        clones.push({ ...d, period, amount });
+    }
+    return [...lines, ...clones];
+}
+
 export default async function AgmBudgetPage() {
-    const lines = await loadBudgetLines();
+    const baseLines = await loadBudgetLines();
+
+    // Toggle 2025 mocks by switching between these two lines:
+    // const lines = baseLines;                 // ← no 2025
+    const lines = with2025(baseLines, /* uplift % */ undefined); // ← add 2025 copy (no uplift)
 
     const totalRevenue = sumAmount(lines, "revenue");
     const totalExpense = sumAmount(lines, "expense");
@@ -82,7 +100,7 @@ export default async function AgmBudgetPage() {
                 <Card title="Net" value={fmtCurrency(net)} testId="card-net" />
             </section>
 
-            {/* AG Grid mount */}
+            {/* TanStack Grid mount */}
             <section
                 aria-label="Budget grid"
                 className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
@@ -94,7 +112,7 @@ export default async function AgmBudgetPage() {
                     </p>
                 </div>
 
-                {/* This is the only change vs your previous table: mount the grid */}
+                {/* Mount the TanStack grid (safer side-by-side with old grid while you test) */}
                 <BudgetGrid rows={lines} />
             </section>
         </div>
@@ -122,3 +140,4 @@ function Card({
         </div>
     );
 }
+``
