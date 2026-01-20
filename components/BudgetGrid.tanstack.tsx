@@ -3,11 +3,10 @@
 
 /**
  * BudgetGrid.tanstack.tsx — TanStack Table v8 + React Virtual
- * Toolbar retooled: Community (multi), Year (single), Budget Type (single),
- * Category (multi) + Clear Filters + Export CSV.
- * – Removes all Bulk Edit UI.
- * – Keeps: inline Amount editing, per-column text filters, virtualization,
- *   TOTAL (filtered) footer.
+ * Toolbar shows labeled controls when empty:
+ *   Community | Year | Budget Type | Category
+ * Keeps: per-column text filters, inline Amount editing, virtualization,
+ * TOTAL (filtered) footer, CSV export.
  */
 
 import React, { useCallback, useMemo, useRef, useState } from "react";
@@ -23,7 +22,6 @@ import {
     flexRender,
     ColumnPinningState,
     GroupingState,
-    Column
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
@@ -75,11 +73,8 @@ function exportRowsToCsv<T extends object>(
     const header = colIds.join(",");
     const body = rows
         .map((r) =>
-            colIds
-                .map((k) => {
-                    if (k === "amount") return esc((r as any)[k] ?? "");
-                    return esc((r as any)[k] ?? "");
-                })
+            colIds.map((k) => (k === "amount" ? (r as any)[k] ?? "" : (r as any)[k] ?? ""))
+                .map(esc)
                 .join(",")
         )
         .join("\n");
@@ -144,7 +139,7 @@ function AmountCell({
     );
 }
 
-// ---------- small headless dropdowns ----------
+// ---------- headless dropdowns (label when empty) ----------
 type Option = { label: string; value: string };
 
 function useClickOutsideClose<T extends HTMLElement>(onClose: () => void) {
@@ -175,7 +170,7 @@ function SingleSelect({
     className,
     "aria-label": ariaLabel,
 }: {
-    label?: string;
+    label: string;                // ← required so we can display it when empty
     value: string | null;
     options: Option[];
     onChange: (val: string | null) => void;
@@ -186,17 +181,19 @@ function SingleSelect({
     const ref = useClickOutsideClose<HTMLDivElement>(() => setOpen(false));
     const current = options.find((o) => o.value === value);
 
+    // When empty, show the control name (label) instead of "All"
+    const displayText = current ? current.label : label;
+
     return (
         <div className={`relative ${className ?? ""}`} ref={ref}>
-            {label ? <span className="sr-only">{label}</span> : null}
             <button
                 type="button"
                 aria-label={ariaLabel || label}
                 onClick={() => setOpen((o) => !o)}
                 className="inline-flex min-w-[168px] items-center justify-between rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-800 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
             >
-                <span className="truncate">
-                    {current ? current.label : "All"}
+                <span className={`truncate ${current ? "" : "text-slate-500"}`}>
+                    {displayText}
                 </span>
                 <svg viewBox="0 0 20 20" aria-hidden="true" className="ml-2 h-4 w-4 text-slate-500">
                     <path d="M5.25 7.5l4.5 4.5 4.5-4.5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" />
@@ -211,6 +208,7 @@ function SingleSelect({
                         className="w-full rounded px-2 py-1 text-left text-sm text-slate-700 hover:bg-slate-100"
                         onClick={() => { onChange(null); setOpen(false); }}
                     >
+                        {/* Show 'All' in menu, but empty state shows control name */}
                         All
                     </button>
                     <div className="my-1 h-px bg-slate-100" />
@@ -240,8 +238,8 @@ function MultiSelect({
     className,
     "aria-label": ariaLabel,
 }: {
-    label?: string;
-    values: string[]; // selected values
+    label: string;               // ← required for empty-label behavior
+    values: string[];
     options: Option[];
     onChange: (vals: string[]) => void;
     searchable?: boolean;
@@ -251,9 +249,11 @@ function MultiSelect({
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const ref = useClickOutsideClose<HTMLDivElement>(() => setOpen(false));
+
+    // When empty, show the control name (label). Otherwise show chips/count.
     const display =
         values.length === 0
-            ? "All"
+            ? label
             : values.length <= 2
                 ? options
                     .filter((o) => values.includes(o.value))
@@ -277,14 +277,13 @@ function MultiSelect({
 
     return (
         <div className={`relative ${className ?? ""}`} ref={ref}>
-            {label ? <span className="sr-only">{label}</span> : null}
             <button
                 type="button"
                 aria-label={ariaLabel || label}
                 onClick={() => setOpen((o) => !o)}
                 className="inline-flex min-w-[220px] items-center justify-between rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-800 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
             >
-                <span className="truncate">{display}</span>
+                <span className={`truncate ${values.length === 0 ? "text-slate-500" : ""}`}>{display}</span>
                 <svg viewBox="0 0 20 20" aria-hidden="true" className="ml-2 h-4 w-4 text-slate-500">
                     <path d="M5.25 7.5l4.5 4.5 4.5-4.5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" />
                 </svg>
@@ -354,7 +353,7 @@ export default function BudgetGrid({ rows }: Props) {
 
     // ---- columns ----
     const columns = useMemo<ColumnDef<BudgetLine, any>[]>(() => {
-        // custom filterFns for array-typed filters (community/category multi-select)
+        // filter fns for array-typed filters
         const multiIncludesSome = (row: any, columnId: string, filterValue: string[]) => {
             if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
             const v = String(row.getValue(columnId) ?? "");
@@ -367,82 +366,28 @@ export default function BudgetGrid({ rows }: Props) {
         };
 
         return [
-            {
-                id: "community",
-                accessorKey: "community",
-                header: "Community",
-                meta: { filterPlaceholder: "filter…" },
-                filterFn: multiIncludesSome, // driven by multi-select above grid
-                enablePinning: true,
-            },
-            {
-                id: "type",
-                accessorKey: "type",
-                header: "Type",
-                size: 130,
-                filterFn: equalsString, // single-select from toolbar
-            },
-            {
-                id: "category",
-                accessorKey: "category",
-                header: "Category",
-                filterFn: multiIncludesSome, // driven by multi-select above grid
-            },
-            {
-                id: "subCategory",
-                accessorKey: "subCategory",
-                header: "Subcategory",
-            },
-            {
-                id: "period",
-                accessorKey: "period",
-                header: "Period",
-                size: 120,
-                // Year filter (toolbar) will target a derived "year" value via custom filter below
-            },
-            {
-                id: "glCode",
-                accessorKey: "glCode",
-                header: "GL Code",
-                size: 120,
-            },
-            {
-                id: "budgetMethod",
-                accessorKey: "budgetMethod",
-                header: "Method",
-                size: 180,
-            },
-            {
-                id: "driver",
-                header: "Driver",
-                accessorFn: (row) => row.driver ?? row.driverTag ?? null,
-            },
-            {
-                id: "amount",
-                accessorKey: "amount",
-                header: "Amount",
-                cell: AmountCell,
-                size: 140,
-            },
-            // A virtual "year" column used only for filtering from the Year dropdown.
+            { id: "community", accessorKey: "community", header: "Community", meta: { filterPlaceholder: "filter…" }, filterFn: multiIncludesSome, enablePinning: true },
+            { id: "type", accessorKey: "type", header: "Type", size: 130, filterFn: equalsString },
+            { id: "category", accessorKey: "category", header: "Category", filterFn: multiIncludesSome },
+            { id: "subCategory", accessorKey: "subCategory", header: "Subcategory" },
+            { id: "period", accessorKey: "period", header: "Period", size: 120 },
+            { id: "glCode", accessorKey: "glCode", header: "GL Code", size: 120 },
+            { id: "budgetMethod", accessorKey: "budgetMethod", header: "Method", size: 180 },
+            { id: "driver", header: "Driver", accessorFn: (row) => row.driver ?? row.driverTag ?? null },
+            { id: "amount", accessorKey: "amount", header: "Amount", cell: AmountCell, size: 140 },
+            // hidden helper for year filtering
             {
                 id: "__year",
                 accessorFn: (row) => {
-                    // parse from period (supports "YYYY" or "YYYY-MM")
                     const p = row.period;
-                    if (p == null) return null;
-                    const s = String(p);
+                    const s = p == null ? "" : String(p);
                     const y = s.slice(0, 4);
                     return /^\d{4}$/.test(y) ? y : null;
                 },
                 header: "Year (hidden)",
                 enableHiding: true,
                 meta: { hiddenHelper: true },
-                filterFn: (r, id, val: string | null) => {
-                    if (!val) return true;
-                    const v = r.getValue(id);
-                    return String(v ?? "") === String(val);
-                },
+                filterFn: (r, id, val: string | null) => !val || String(r.getValue(id) ?? "") === String(val),
             },
         ];
     }, []);
@@ -454,14 +399,7 @@ export default function BudgetGrid({ rows }: Props) {
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getSortedRowModel: getSortedRowModel(),
-        state: {
-            sorting,
-            columnFilters: filters,
-            rowSelection,
-            columnVisibility,
-            columnPinning,
-            grouping,
-        },
+        state: { sorting, columnFilters: filters, rowSelection, columnVisibility, columnPinning, grouping },
         onSortingChange: setSorting,
         onColumnFiltersChange: setFilters,
         onRowSelectionChange: setRowSelection,
@@ -482,10 +420,7 @@ export default function BudgetGrid({ rows }: Props) {
             `${row.community ?? ""}${row.type ?? ""}${row.category ?? ""}${row.subCategory ?? ""}${row.period ?? ""}`,
     });
 
-    // ---------- toolbar derived options ----------
-    // Pre-filtered options (so selection lists are derived from the dataset, not the filtered view),
-    // but Category will be derived from the partially-filtered view (community/type/year applied) to stay relevant.
-
+    // ---------- toolbar options ----------
     const allCommunities = useMemo<Option[]>(() => {
         const set = new Set<string>();
         data.forEach((r) => r.community && set.add(r.community));
@@ -502,32 +437,24 @@ export default function BudgetGrid({ rows }: Props) {
         []
     );
 
-    // read helpers from filters
     const getFilter = (id: string) => filters.find((f) => f.id === id)?.value as any;
 
-    // current values
     const selectedCommunities = (getFilter("community") as string[]) ?? [];
     const selectedYear = (getFilter("__year") as string | null) ?? null;
     const selectedType = (getFilter("type") as string | null) ?? null;
     const selectedCategories = (getFilter("category") as string[]) ?? [];
 
-    // For Category options, reflect current Community/Year/Type filters to keep the list relevant.
+    // Category options reflect Community/Year/Type selections
     const categoryOptions: Option[] = useMemo(() => {
-        // Build a transient filtered view that applies community/year/type only.
         const rowsForOptions = table.getPreFilteredRowModel().rows.filter((r) => {
-            const communityPass =
+            const commPass =
                 selectedCommunities.length === 0 || selectedCommunities.includes(String(r.getValue("community") ?? ""));
             const typePass = !selectedType || String(r.getValue("type") ?? "") === selectedType;
-            const yr = (() => {
-                const p = r.original.period;
-                const s = p == null ? "" : String(p);
-                const y = /^\d{4}/.test(s) ? s.slice(0, 4) : "";
-                return y;
-            })();
-            const yearPass = !selectedYear || yr === selectedYear;
-            return communityPass && typePass && yearPass;
+            const s = String(r.original.period ?? "");
+            const y = /^\d{4}/.test(s) ? s.slice(0, 4) : "";
+            const yearPass = !selectedYear || y === selectedYear;
+            return commPass && typePass && yearPass;
         });
-
         const set = new Set<string>();
         rowsForOptions.forEach((rr) => {
             const v = String(rr.getValue("category") ?? "");
@@ -536,24 +463,14 @@ export default function BudgetGrid({ rows }: Props) {
         return Array.from(set).sort((a, b) => a.localeCompare(b)).map((v) => ({ value: v, label: v }));
     }, [table, selectedCommunities, selectedType, selectedYear]);
 
-    // ---------- toolbar actions ----------
-    const setFilter = useCallback(
-        (id: string, value: any) => {
-            setFilters((old) => {
-                const others = old.filter((f) => f.id !== id);
-                if (value == null || (Array.isArray(value) && value.length === 0)) return others;
-                return [...others, { id, value }];
-            });
-            // Clear selection whenever filters change
-            setRowSelection({});
-        },
-        []
-    );
-
-    const onCommunitiesChange = (vals: string[]) => setFilter("community", vals);
-    const onYearChange = (val: string | null) => setFilter("__year", val);
-    const onTypeChange = (val: string | null) => setFilter("type", val);
-    const onCategoriesChange = (vals: string[]) => setFilter("category", vals);
+    const setFilter = useCallback((id: string, value: any) => {
+        setFilters((old) => {
+            const others = old.filter((f) => f.id !== id);
+            if (value == null || (Array.isArray(value) && value.length === 0)) return others;
+            return [...others, { id, value }];
+        });
+        setRowSelection({});
+    }, []);
 
     const clearAllFilters = () => setFilters([]);
 
@@ -582,64 +499,50 @@ export default function BudgetGrid({ rows }: Props) {
         return sum;
     }, [table, data, filters, sorting, grouping]);
 
-    // ---------- render ----------
     const anyFilterActive = filters.length > 0;
 
     return (
         <section aria-label="Budget grid" className="space-y-3">
-            {/* Toolbar (replaces Bulk Edit strip) */}
+            {/* Toolbar */}
             <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                {/* Community (multi) */}
                 <MultiSelect
                     aria-label="Filter by community"
                     label="Community"
                     values={selectedCommunities}
                     options={allCommunities}
-                    onChange={onCommunitiesChange}
+                    onChange={(vals) => setFilter("community", vals)}
                     className="mr-1"
                 />
-
-                {/* Year (single) */}
                 <SingleSelect
                     aria-label="Filter by year"
                     label="Year"
                     value={selectedYear}
                     options={yearOptions}
-                    onChange={onYearChange}
+                    onChange={(val) => setFilter("__year", val)}
                     className="mr-1"
                 />
-
-                {/* Budget Type (single) */}
                 <SingleSelect
                     aria-label="Filter by budget type"
                     label="Budget Type"
                     value={selectedType}
                     options={typeOptions}
-                    onChange={onTypeChange}
+                    onChange={(val) => setFilter("type", val)}
                     className="mr-1"
                 />
-
-                {/* Category (multi) */}
                 <MultiSelect
                     aria-label="Filter by category"
                     label="Category"
                     values={selectedCategories}
                     options={categoryOptions}
-                    onChange={onCategoriesChange}
+                    onChange={(vals) => setFilter("category", vals)}
                     className="mr-1"
                 />
-
-                {/* Spacer */}
                 <div className="grow" />
-
-                {/* Filters active badge */}
                 {anyFilterActive && (
                     <span className="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600">
                         {filters.length} filter{filters.length > 1 ? "s" : ""} active
                     </span>
                 )}
-
-                {/* Clear + Export */}
                 <button
                     type="button"
                     onClick={clearAllFilters}
@@ -656,14 +559,15 @@ export default function BudgetGrid({ rows }: Props) {
                 </button>
             </div>
 
-            {/* Column headers + simple text filter row (unchanged) */}
+            {/* Column headers + text filter row */}
             <div className="rounded-t-lg border-x border-t border-slate-200 bg-slate-50">
                 <div
                     className="grid grid-cols-[repeat(var(--cols),minmax(140px,1fr))] px-2 py-2 text-xs font-semibold text-slate-600"
-                    style={{ ["--cols" as any]: table.getAllColumns().filter(c => c.getIsVisible() && !(c.columnDef as any)?.meta?.hiddenHelper).length }}
+                    style={{
+                        ["--cols" as any]: table.getAllColumns().filter((c) => c.getIsVisible() && !(c.columnDef as any)?.meta?.hiddenHelper).length,
+                    }}
                 >
                     {table.getFlatHeaders().map((header) => {
-                        // Hide helper column from header row
                         if ((header.column.columnDef as any)?.meta?.hiddenHelper) return null;
                         return (
                             <div key={header.id} className="pr-2">
@@ -678,7 +582,6 @@ export default function BudgetGrid({ rows }: Props) {
                                         desc: " ↓",
                                     }[header.column.getIsSorted() as string] ?? null}
                                 </button>
-                                {/* simple per-column text filter */}
                                 {header.column.getCanFilter() && (
                                     <div className="mt-1">
                                         <input
@@ -695,18 +598,17 @@ export default function BudgetGrid({ rows }: Props) {
                 </div>
             </div>
 
-            {/* Table body (virtualized) */}
+            {/* Table (virtualized rows) */}
             <div
                 ref={parentRef}
                 className="border-x border-b border-slate-200"
                 style={{ height: 720, overflow: "auto", position: "relative" }}
                 aria-label="Budget TanStack Grid"
             >
-                <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
-                    {virtualItems.map((vi) => {
+                <div style={{ height: useVirtualizer({ count: table.getRowModel().rows.length, getScrollElement: () => parentRef.current, estimateSize: () => 40, overscan: 8 }).getTotalSize(), position: "relative" }}>
+                    {useVirtualizer({ count: table.getRowModel().rows.length, getScrollElement: () => parentRef.current, estimateSize: () => 40, overscan: 8 }).getVirtualItems().map((vi) => {
                         const row = table.getRowModel().rows[vi.index];
-                        // compute visible columns count excluding the hidden helper
-                        const visibleCols = row.getVisibleCells().filter(c => !(c.column.columnDef as any)?.meta?.hiddenHelper);
+                        const visibleCols = row.getVisibleCells().filter((c) => !(c.column.columnDef as any)?.meta?.hiddenHelper);
                         return (
                             <div
                                 key={row.id}

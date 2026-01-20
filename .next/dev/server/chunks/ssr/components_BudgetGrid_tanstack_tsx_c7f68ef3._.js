@@ -9,11 +9,10 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
 /**
  * BudgetGrid.tanstack.tsx — TanStack Table v8 + React Virtual
- * Toolbar retooled: Community (multi), Year (single), Budget Type (single),
- * Category (multi) + Clear Filters + Export CSV.
- * – Removes all Bulk Edit UI.
- * – Keeps: inline Amount editing, per-column text filters, virtualization,
- *   TOTAL (filtered) footer.
+ * Toolbar shows labeled controls when empty:
+ *   Community | Year | Budget Type | Category
+ * Keeps: per-column text filters, inline Amount editing, virtualization,
+ * TOTAL (filtered) footer, CSV export.
  */ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$table$2d$core$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/table-core/build/lib/index.mjs [app-ssr] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$table$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/node_modules/@tanstack/react-table/build/lib/index.mjs [app-ssr] (ecmascript) <locals>");
@@ -37,10 +36,7 @@ function exportRowsToCsv(rows, columns, fileName = "budget-grid.csv") {
         return /[",\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
     };
     const header = colIds.join(",");
-    const body = rows.map((r)=>colIds.map((k)=>{
-            if (k === "amount") return esc(r[k] ?? "");
-            return esc(r[k] ?? "");
-        }).join(",")).join("\n");
+    const body = rows.map((r)=>colIds.map((k)=>k === "amount" ? r[k] ?? "" : r[k] ?? "").map(esc).join(",")).join("\n");
     const csv = `${header}\n${body}`;
     const blob = new Blob([
         csv
@@ -81,7 +77,7 @@ function AmountCell({ getValue, row, table }) {
             }
         }, void 0, false, {
             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-            lineNumber: 121,
+            lineNumber: 116,
             columnNumber: 17
         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
             className: "w-full text-right tabular-nums",
@@ -90,12 +86,12 @@ function AmountCell({ getValue, row, table }) {
             children: typeof initial === "number" ? fmtUSD(initial) : "—"
         }, void 0, false, {
             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-            lineNumber: 135,
+            lineNumber: 130,
             columnNumber: 17
         }, this)
     }, void 0, false, {
         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-        lineNumber: 119,
+        lineNumber: 114,
         columnNumber: 9
     }, this);
 }
@@ -124,18 +120,12 @@ function SingleSelect({ label, value, options, onChange, className, "aria-label"
     const [open, setOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const ref = useClickOutsideClose(()=>setOpen(false));
     const current = options.find((o)=>o.value === value);
+    // When empty, show the control name (label) instead of "All"
+    const displayText = current ? current.label : label;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: `relative ${className ?? ""}`,
         ref: ref,
         children: [
-            label ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                className: "sr-only",
-                children: label
-            }, void 0, false, {
-                fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 191,
-                columnNumber: 22
-            }, this) : null,
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 type: "button",
                 "aria-label": ariaLabel || label,
@@ -143,11 +133,11 @@ function SingleSelect({ label, value, options, onChange, className, "aria-label"
                 className: "inline-flex min-w-[168px] items-center justify-between rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-800 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "truncate",
-                        children: current ? current.label : "All"
+                        className: `truncate ${current ? "" : "text-slate-500"}`,
+                        children: displayText
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 198,
+                        lineNumber: 195,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
@@ -162,18 +152,18 @@ function SingleSelect({ label, value, options, onChange, className, "aria-label"
                             strokeLinecap: "round"
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 202,
+                            lineNumber: 199,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 201,
+                        lineNumber: 198,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 192,
+                lineNumber: 189,
                 columnNumber: 13
             }, this),
             open && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -189,14 +179,14 @@ function SingleSelect({ label, value, options, onChange, className, "aria-label"
                         children: "All"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 210,
+                        lineNumber: 207,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "my-1 h-px bg-slate-100"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 216,
+                        lineNumber: 214,
                         columnNumber: 21
                     }, this),
                     options.map((opt)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -210,19 +200,19 @@ function SingleSelect({ label, value, options, onChange, className, "aria-label"
                             children: opt.label
                         }, opt.value, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 218,
+                            lineNumber: 216,
                             columnNumber: 25
                         }, this))
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 206,
+                lineNumber: 203,
                 columnNumber: 17
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-        lineNumber: 190,
+        lineNumber: 188,
         columnNumber: 9
     }, this);
 }
@@ -230,7 +220,8 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
     const [open, setOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
     const [query, setQuery] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])("");
     const ref = useClickOutsideClose(()=>setOpen(false));
-    const display = values.length === 0 ? "All" : values.length <= 2 ? options.filter((o)=>values.includes(o.value)).map((o)=>o.label).join(", ") : `${values.length} selected`;
+    // When empty, show the control name (label). Otherwise show chips/count.
+    const display = values.length === 0 ? label : values.length <= 2 ? options.filter((o)=>values.includes(o.value)).map((o)=>o.label).join(", ") : `${values.length} selected`;
     const filtered = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
         if (!searchable || !query.trim()) return options;
         const q = query.toLowerCase();
@@ -253,14 +244,6 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
         className: `relative ${className ?? ""}`,
         ref: ref,
         children: [
-            label ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                className: "sr-only",
-                children: label
-            }, void 0, false, {
-                fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 280,
-                columnNumber: 22
-            }, this) : null,
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
                 type: "button",
                 "aria-label": ariaLabel || label,
@@ -268,11 +251,11 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                 className: "inline-flex min-w-[220px] items-center justify-between rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-800 shadow-sm hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                        className: "truncate",
+                        className: `truncate ${values.length === 0 ? "text-slate-500" : ""}`,
                         children: display
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 287,
+                        lineNumber: 286,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
@@ -287,18 +270,18 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                             strokeLinecap: "round"
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 289,
+                            lineNumber: 288,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 288,
+                        lineNumber: 287,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 281,
+                lineNumber: 280,
                 columnNumber: 13
             }, this),
             open && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -316,12 +299,12 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                             className: "w-full rounded border border-slate-300 px-2 py-1 text-sm"
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 299,
+                            lineNumber: 298,
                             columnNumber: 29
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 298,
+                        lineNumber: 297,
                         columnNumber: 25
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -335,7 +318,7 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 310,
+                                lineNumber: 309,
                                 columnNumber: 25
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -347,7 +330,7 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                                         children: "Select all"
                                     }, void 0, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 312,
+                                        lineNumber: 311,
                                         columnNumber: 29
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -356,19 +339,19 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                                         children: "Clear"
                                     }, void 0, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 315,
+                                        lineNumber: 314,
                                         columnNumber: 29
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 311,
+                                lineNumber: 310,
                                 columnNumber: 25
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 309,
+                        lineNumber: 308,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
@@ -386,7 +369,7 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                                             onChange: ()=>toggle(opt.value)
                                         }, void 0, false, {
                                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                            lineNumber: 326,
+                                            lineNumber: 325,
                                             columnNumber: 41
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -394,30 +377,30 @@ function MultiSelect({ label, values, options, onChange, searchable = true, clas
                                             children: opt.label
                                         }, void 0, false, {
                                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                            lineNumber: 332,
+                                            lineNumber: 331,
                                             columnNumber: 41
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 325,
+                                    lineNumber: 324,
                                     columnNumber: 37
                                 }, this)
                             }, opt.value, false, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 324,
+                                lineNumber: 323,
                                 columnNumber: 33
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 320,
+                        lineNumber: 319,
                         columnNumber: 21
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 293,
+                lineNumber: 292,
                 columnNumber: 17
             }, this)
         ]
@@ -441,7 +424,7 @@ function BudgetGrid({ rows }) {
     const [grouping, setGrouping] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])([]);
     // ---- columns ----
     const columns = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
-        // custom filterFns for array-typed filters (community/category multi-select)
+        // filter fns for array-typed filters
         const multiIncludesSome = (row, columnId, filterValue)=>{
             if (!Array.isArray(filterValue) || filterValue.length === 0) return true;
             const v = String(row.getValue(columnId) ?? "");
@@ -511,14 +494,12 @@ function BudgetGrid({ rows }) {
                 cell: AmountCell,
                 size: 140
             },
-            // A virtual "year" column used only for filtering from the Year dropdown.
+            // hidden helper for year filtering
             {
                 id: "__year",
                 accessorFn: (row)=>{
-                    // parse from period (supports "YYYY" or "YYYY-MM")
                     const p = row.period;
-                    if (p == null) return null;
-                    const s = String(p);
+                    const s = p == null ? "" : String(p);
                     const y = s.slice(0, 4);
                     return /^\d{4}$/.test(y) ? y : null;
                 },
@@ -527,11 +508,7 @@ function BudgetGrid({ rows }) {
                 meta: {
                     hiddenHelper: true
                 },
-                filterFn: (r, id, val)=>{
-                    if (!val) return true;
-                    const v = r.getValue(id);
-                    return String(v ?? "") === String(val);
-                }
+                filterFn: (r, id, val)=>!val || String(r.getValue(id) ?? "") === String(val)
             }
         ];
     }, []);
@@ -571,9 +548,7 @@ function BudgetGrid({ rows }) {
         },
         getRowId: (row)=>`${row.community ?? ""}${row.type ?? ""}${row.category ?? ""}${row.subCategory ?? ""}${row.period ?? ""}`
     });
-    // ---------- toolbar derived options ----------
-    // Pre-filtered options (so selection lists are derived from the dataset, not the filtered view),
-    // but Category will be derived from the partially-filtered view (community/type/year applied) to stay relevant.
+    // ---------- toolbar options ----------
     const allCommunities = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
         const set = new Set();
         data.forEach((r)=>r.community && set.add(r.community));
@@ -600,27 +575,20 @@ function BudgetGrid({ rows }) {
                 value: t,
                 label: t
             })), []);
-    // read helpers from filters
     const getFilter = (id)=>filters.find((f)=>f.id === id)?.value;
-    // current values
     const selectedCommunities = getFilter("community") ?? [];
     const selectedYear = getFilter("__year") ?? null;
     const selectedType = getFilter("type") ?? null;
     const selectedCategories = getFilter("category") ?? [];
-    // For Category options, reflect current Community/Year/Type filters to keep the list relevant.
+    // Category options reflect Community/Year/Type selections
     const categoryOptions = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>{
-        // Build a transient filtered view that applies community/year/type only.
         const rowsForOptions = table.getPreFilteredRowModel().rows.filter((r)=>{
-            const communityPass = selectedCommunities.length === 0 || selectedCommunities.includes(String(r.getValue("community") ?? ""));
+            const commPass = selectedCommunities.length === 0 || selectedCommunities.includes(String(r.getValue("community") ?? ""));
             const typePass = !selectedType || String(r.getValue("type") ?? "") === selectedType;
-            const yr = (()=>{
-                const p = r.original.period;
-                const s = p == null ? "" : String(p);
-                const y = /^\d{4}/.test(s) ? s.slice(0, 4) : "";
-                return y;
-            })();
-            const yearPass = !selectedYear || yr === selectedYear;
-            return communityPass && typePass && yearPass;
+            const s = String(r.original.period ?? "");
+            const y = /^\d{4}/.test(s) ? s.slice(0, 4) : "";
+            const yearPass = !selectedYear || y === selectedYear;
+            return commPass && typePass && yearPass;
         });
         const set = new Set();
         rowsForOptions.forEach((rr)=>{
@@ -637,7 +605,6 @@ function BudgetGrid({ rows }) {
         selectedType,
         selectedYear
     ]);
-    // ---------- toolbar actions ----------
     const setFilter = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"])((id, value)=>{
         setFilters((old)=>{
             const others = old.filter((f)=>f.id !== id);
@@ -650,13 +617,8 @@ function BudgetGrid({ rows }) {
                 }
             ];
         });
-        // Clear selection whenever filters change
         setRowSelection({});
     }, []);
-    const onCommunitiesChange = (vals)=>setFilter("community", vals);
-    const onYearChange = (val)=>setFilter("__year", val);
-    const onTypeChange = (val)=>setFilter("type", val);
-    const onCategoriesChange = (vals)=>setFilter("category", vals);
     const clearAllFilters = ()=>setFilters([]);
     const exportCsv = ()=>{
         const rows = table.getRowModel().rows.map((r)=>r.original);
@@ -686,7 +648,6 @@ function BudgetGrid({ rows }) {
         sorting,
         grouping
     ]);
-    // ---------- render ----------
     const anyFilterActive = filters.length > 0;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
         "aria-label": "Budget grid",
@@ -700,11 +661,11 @@ function BudgetGrid({ rows }) {
                         label: "Community",
                         values: selectedCommunities,
                         options: allCommunities,
-                        onChange: onCommunitiesChange,
+                        onChange: (vals)=>setFilter("community", vals),
                         className: "mr-1"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 593,
+                        lineNumber: 508,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SingleSelect, {
@@ -712,11 +673,11 @@ function BudgetGrid({ rows }) {
                         label: "Year",
                         value: selectedYear,
                         options: yearOptions,
-                        onChange: onYearChange,
+                        onChange: (val)=>setFilter("__year", val),
                         className: "mr-1"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 603,
+                        lineNumber: 516,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SingleSelect, {
@@ -724,11 +685,11 @@ function BudgetGrid({ rows }) {
                         label: "Budget Type",
                         value: selectedType,
                         options: typeOptions,
-                        onChange: onTypeChange,
+                        onChange: (val)=>setFilter("type", val),
                         className: "mr-1"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 613,
+                        lineNumber: 524,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MultiSelect, {
@@ -736,18 +697,18 @@ function BudgetGrid({ rows }) {
                         label: "Category",
                         values: selectedCategories,
                         options: categoryOptions,
-                        onChange: onCategoriesChange,
+                        onChange: (vals)=>setFilter("category", vals),
                         className: "mr-1"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 623,
+                        lineNumber: 532,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "grow"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 633,
+                        lineNumber: 540,
                         columnNumber: 17
                     }, this),
                     anyFilterActive && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -760,7 +721,7 @@ function BudgetGrid({ rows }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 637,
+                        lineNumber: 542,
                         columnNumber: 21
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -770,7 +731,7 @@ function BudgetGrid({ rows }) {
                         children: "Clear Filters"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 643,
+                        lineNumber: 546,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -780,13 +741,13 @@ function BudgetGrid({ rows }) {
                         children: "Export CSV"
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 650,
+                        lineNumber: 553,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 591,
+                lineNumber: 507,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -797,7 +758,6 @@ function BudgetGrid({ rows }) {
                         ["--cols"]: table.getAllColumns().filter((c)=>c.getIsVisible() && !c.columnDef?.meta?.hiddenHelper).length
                     },
                     children: table.getFlatHeaders().map((header)=>{
-                        // Hide helper column from header row
                         if (header.column.columnDef?.meta?.hiddenHelper) return null;
                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: "pr-2",
@@ -815,7 +775,7 @@ function BudgetGrid({ rows }) {
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 670,
+                                    lineNumber: 574,
                                     columnNumber: 33
                                 }, this),
                                 header.column.getCanFilter() && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -827,29 +787,29 @@ function BudgetGrid({ rows }) {
                                         onChange: (e)=>header.column.setFilterValue(e.target.value)
                                     }, void 0, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 684,
+                                        lineNumber: 587,
                                         columnNumber: 41
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 683,
+                                    lineNumber: 586,
                                     columnNumber: 37
                                 }, this)
                             ]
                         }, header.id, true, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 669,
+                            lineNumber: 573,
                             columnNumber: 29
                         }, this);
                     })
                 }, void 0, false, {
                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                    lineNumber: 661,
+                    lineNumber: 564,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 660,
+                lineNumber: 563,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -863,12 +823,21 @@ function BudgetGrid({ rows }) {
                 "aria-label": "Budget TanStack Grid",
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     style: {
-                        height: virtualizer.getTotalSize(),
+                        height: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$virtual$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["useVirtualizer"])({
+                            count: table.getRowModel().rows.length,
+                            getScrollElement: ()=>parentRef.current,
+                            estimateSize: ()=>40,
+                            overscan: 8
+                        }).getTotalSize(),
                         position: "relative"
                     },
-                    children: virtualItems.map((vi)=>{
+                    children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$virtual$2f$dist$2f$esm$2f$index$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["useVirtualizer"])({
+                        count: table.getRowModel().rows.length,
+                        getScrollElement: ()=>parentRef.current,
+                        estimateSize: ()=>40,
+                        overscan: 8
+                    }).getVirtualItems().map((vi)=>{
                         const row = table.getRowModel().rows[vi.index];
-                        // compute visible columns count excluding the hidden helper
                         const visibleCols = row.getVisibleCells().filter((c)=>!c.column.columnDef?.meta?.hiddenHelper);
                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             className: `grid grid-cols-[repeat(var(--cols),minmax(140px,1fr))] border-b border-slate-100 px-2 text-sm ${row.getIsSelected() ? "bg-teal-50" : "bg-white"} hover:bg-slate-50`,
@@ -884,23 +853,23 @@ function BudgetGrid({ rows }) {
                                     children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$table$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["flexRender"])(cell.column.columnDef.cell, cell.getContext())
                                 }, cell.id, false, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 723,
+                                    lineNumber: 625,
                                     columnNumber: 37
                                 }, this))
                         }, row.id, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 711,
+                            lineNumber: 613,
                             columnNumber: 29
                         }, this);
                     })
                 }, void 0, false, {
                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                    lineNumber: 705,
+                    lineNumber: 608,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 699,
+                lineNumber: 602,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -912,19 +881,19 @@ function BudgetGrid({ rows }) {
                         children: fmtUSD(totalFiltered)
                     }, void 0, false, {
                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                        lineNumber: 735,
+                        lineNumber: 637,
                         columnNumber: 35
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 734,
+                lineNumber: 636,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-        lineNumber: 589,
+        lineNumber: 505,
         columnNumber: 9
     }, this);
 }
