@@ -1,3 +1,4 @@
 {
-  "/agm/budget/page": "app/agm/budget/page.js"
+  "/agm/budget/page": "app/agm/budget/page.js",
+  "/page": "app/page.js"
 }
