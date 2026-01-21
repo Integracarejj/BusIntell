@@ -70,10 +70,6 @@ export default function BudgetGrid({
         enableColumnResizing: true,
         columnResizeMode: 'onChange',
         getRowId: (row, idx) => (row as any).id ?? String(idx),
-        // 👇 hide the 'year' column by default (still available for filters)
-        initialState: {
-            columnVisibility: { year: false },
-        },
     } as TableOptions<BudgetRow>);
 
     const scrollRef = React.useRef<HTMLDivElement>(null);
@@ -149,6 +145,7 @@ export default function BudgetGrid({
                                                 textAlign: 'left',
                                                 fontWeight: 600,
                                                 borderBottom: '1px solid #e5e5e5',
+                                                borderRight: '1px solid #f3f3f3',   // subtle column separator
                                                 padding: '8px 10px',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
@@ -196,6 +193,7 @@ export default function BudgetGrid({
                                             key={cell.id}
                                             style={{
                                                 borderBottom: '1px solid #f0f0f0',
+                                                borderRight: '1px solid #f7f7f7',  // subtle column separator
                                                 padding: '6px 10px',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
@@ -224,6 +222,7 @@ export default function BudgetGrid({
                                         key={col.id}
                                         style={{
                                             borderTop: '2px solid #e5e5e5',
+                                            borderRight: '1px solid #f7f7f7',   // subtle column separator
                                             fontWeight: 600,
                                             padding: '8px 10px',
                                             textAlign: isAmount ? 'right' : 'left',

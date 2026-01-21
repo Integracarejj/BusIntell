@@ -78,6 +78,10 @@ __turbopack_context__.s([
     ()=>columns,
     "default",
     ()=>__TURBOPACK__default__export__,
+    "deriveMonthLabel",
+    ()=>deriveMonthLabel,
+    "deriveQuarterLabel",
+    ()=>deriveQuarterLabel,
     "deriveYear",
     ()=>deriveYear,
     "mapBudgetType",
@@ -90,12 +94,46 @@ function deriveYear(period) {
     const y = parseInt(period.slice(0, 4), 10);
     return Number.isFinite(y) ? y : null;
 }
+/** Internal: 1–12 from "2026-03" */ function deriveMonthNumber(period) {
+    if (!period || period.length < 7) return null;
+    const m = parseInt(period.slice(5, 7), 10);
+    return m >= 1 && m <= 12 ? m : null;
+}
+function deriveMonthLabel(period) {
+    const m = deriveMonthNumber(period);
+    if (!m) return '';
+    const labels = [
+        '',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec'
+    ];
+    return labels[m] ?? '';
+}
+function deriveQuarterLabel(period) {
+    const year = deriveYear(period);
+    const m = deriveMonthNumber(period);
+    if (!year || !m) return '';
+    const q = Math.ceil(m / 3);
+    const yy = String(year).slice(-2); // 2026 → "26"
+    return `${yy}Q${q}`;
+}
 function mapBudgetType(raw) {
     if (!raw) return '';
     const t = String(raw).toLowerCase();
     if (t === 'expense') return 'Expense';
     if (t === 'revenue') return 'Revenue';
     if (t === 'capex' || t === 'capital' || t === 'capital_expenditure') return 'CapEx';
+    // Fallback: Title Case original value
     return raw.charAt(0).toUpperCase() + raw.slice(1);
 }
 const columns = [
@@ -121,18 +159,11 @@ const columns = [
         size: 220
     },
     {
-        id: 'budgetMethod',
-        accessorKey: 'budgetMethod',
-        header: 'Budget Method',
-        enableResizing: true,
-        size: 220
-    },
-    {
         id: 'glCode',
         accessorKey: 'glCode',
         header: 'GL Code',
         enableResizing: true,
-        size: 120,
+        size: 110,
         cell: (info)=>String(info.getValue() ?? '')
     },
     {
@@ -143,15 +174,6 @@ const columns = [
         size: 140
     },
     {
-        id: 'period',
-        accessorKey: 'period',
-        header: 'Period',
-        enableResizing: true,
-        size: 110,
-        cell: (info)=>String(info.getValue() ?? '')
-    },
-    // Hidden column for filtering only
-    {
         id: 'year',
         header: 'Year',
         accessorFn: (row)=>deriveYear(row.period),
@@ -161,12 +183,27 @@ const columns = [
             const y = info.getValue();
             return y ?? '';
         },
+        // Keep filtering on 'year' numeric-safe so toolbar Year works as expected
         filterFn: (row, _columnId, filterValue)=>{
             const y = row.getValue('year');
             if (filterValue == null || filterValue === '') return true;
             const fv = typeof filterValue === 'string' ? parseInt(filterValue, 10) : filterValue;
             return y === fv;
         }
+    },
+    {
+        id: 'quarter',
+        header: 'Quarter',
+        accessorFn: (row)=>deriveQuarterLabel(row.period),
+        enableResizing: true,
+        size: 100
+    },
+    {
+        id: 'month',
+        header: 'Month',
+        accessorFn: (row)=>deriveMonthLabel(row.period),
+        enableResizing: true,
+        size: 90
     },
     {
         id: 'amount',
@@ -185,12 +222,14 @@ const __TURBOPACK__default__export__ = columns;
 "[project]/components/grid/ToolbarFilters.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
 
-// components/grid/ToolbarFilters.tsx
 __turbopack_context__.s([
     "default",
     ()=>ToolbarFilters
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+// components/grid/ToolbarFilters.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+;
 ;
 function getFilterValue(filters, id) {
     const f = filters.find((f)=>f.id === id);
@@ -200,7 +239,7 @@ function setFilter(setFilters, id, value) {
     setFilters((prev)=>{
         const next = prev.filter((f)=>f.id !== id);
         if (value !== '') {
-            const casted = id === 'year' ? Number(value) : value; // year as number
+            const casted = id === 'year' ? Number(value) : value;
             next.push({
                 id,
                 value: casted
@@ -221,6 +260,22 @@ function getOptions(table, columnId) {
         if (str.trim().length) s.add(str);
     });
     return Array.from(s).sort((a, b)=>a.localeCompare(b));
+}
+function Divider() {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+        "aria-hidden": "true",
+        style: {
+            width: 1,
+            height: 22,
+            background: '#e5e5e5',
+            margin: '0 10px',
+            display: 'inline-block'
+        }
+    }, void 0, false, {
+        fileName: "[project]/components/grid/ToolbarFilters.tsx",
+        lineNumber: 50,
+        columnNumber: 9
+    }, this);
 }
 function ToolbarFilters({ filters, setFilters, onClear, onExport, table }) {
     const items = [
@@ -259,75 +314,85 @@ function ToolbarFilters({ filters, setFilters, onClear, onExport, table }) {
         style: {
             display: 'flex',
             alignItems: 'center',
-            gap: 24,
+            gap: 0,
             padding: '4px 4px 8px 4px'
         },
         children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                style: {
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 16
-                },
-                children: items.map(({ id, label, minWidth })=>{
-                    const options = getOptions(table, id);
-                    const value = getFilterValue(filters, id);
-                    // Use label as placeholder-like first option (acts as clear/all)
-                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            items.map(({ id, label, minWidth }, idx)=>{
+                const options = getOptions(table, id);
+                const value = getFilterValue(filters, id);
+                const control = /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    style: {
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '2px 10px',
+                        borderRadius: 6,
+                        border: '1px solid #e5e5e5',
+                        background: '#fff'
+                    },
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                        value: value,
+                        onChange: (e)=>setFilter(setFilters, id, e.target.value),
+                        disabled: options.length === 0,
                         style: {
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            padding: '2px 8px',
-                            borderRadius: 6,
-                            border: '1px solid #e5e5e5',
-                            background: '#fff'
+                            border: 'none',
+                            outline: 'none',
+                            background: 'transparent',
+                            minWidth: minWidth ?? 120,
+                            cursor: options.length ? 'pointer' : 'not-allowed'
                         },
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
-                            value: value,
-                            onChange: (e)=>setFilter(setFilters, id, e.target.value),
-                            disabled: options.length === 0,
-                            style: {
-                                border: 'none',
-                                outline: 'none',
-                                background: 'transparent',
-                                minWidth: minWidth ?? 120,
-                                cursor: options.length ? 'pointer' : 'not-allowed'
-                            },
-                            "aria-label": label,
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                    value: "",
-                                    children: label
-                                }, void 0, false, {
+                        "aria-label": label,
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                value: "",
+                                children: label
+                            }, void 0, false, {
+                                fileName: "[project]/components/grid/ToolbarFilters.tsx",
+                                lineNumber: 119,
+                                columnNumber: 29
+                            }, this),
+                            options.map((opt)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                    value: opt,
+                                    children: opt
+                                }, `${id}:${opt}`, false, {
                                     fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                                    lineNumber: 106,
+                                    lineNumber: 121,
                                     columnNumber: 33
-                                }, this),
-                                options.map((opt)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
-                                        value: opt,
-                                        children: opt
-                                    }, `${id}:${opt}`, false, {
-                                        fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                                        lineNumber: 108,
-                                        columnNumber: 37
-                                    }, this))
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                            lineNumber: 93,
-                            columnNumber: 29
-                        }, this)
-                    }, id, false, {
+                                }, this))
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                        lineNumber: 82,
+                        lineNumber: 106,
                         columnNumber: 25
-                    }, this);
-                })
-            }, void 0, false, {
-                fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                lineNumber: 76,
-                columnNumber: 13
-            }, this),
+                    }, this)
+                }, id, false, {
+                    fileName: "[project]/components/grid/ToolbarFilters.tsx",
+                    lineNumber: 95,
+                    columnNumber: 21
+                }, this);
+                return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+                    children: [
+                        control,
+                        idx < items.length - 1 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Divider, {}, void 0, false, {
+                            fileName: "[project]/components/grid/ToolbarFilters.tsx",
+                            lineNumber: 130,
+                            columnNumber: 51
+                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            style: {
+                                width: 8
+                            }
+                        }, void 0, false, {
+                            fileName: "[project]/components/grid/ToolbarFilters.tsx",
+                            lineNumber: 130,
+                            columnNumber: 65
+                        }, this)
+                    ]
+                }, `frag-${id}`, true, {
+                    fileName: "[project]/components/grid/ToolbarFilters.tsx",
+                    lineNumber: 128,
+                    columnNumber: 21
+                }, this);
+            }),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 style: {
                     marginLeft: 'auto',
@@ -349,7 +414,7 @@ function ToolbarFilters({ filters, setFilters, onClear, onExport, table }) {
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                        lineNumber: 117,
+                        lineNumber: 136,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -358,7 +423,7 @@ function ToolbarFilters({ filters, setFilters, onClear, onExport, table }) {
                         children: "Clear"
                     }, void 0, false, {
                         fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                        lineNumber: 118,
+                        lineNumber: 137,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -367,23 +432,22 @@ function ToolbarFilters({ filters, setFilters, onClear, onExport, table }) {
                         children: "Export CSV"
                     }, void 0, false, {
                         fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                        lineNumber: 119,
+                        lineNumber: 138,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/grid/ToolbarFilters.tsx",
-                lineNumber: 116,
+                lineNumber: 135,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/grid/ToolbarFilters.tsx",
-        lineNumber: 67,
+        lineNumber: 82,
         columnNumber: 9
     }, this);
 }
-``;
 }),
 "[project]/components/grid/VirtualRows.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
 "use strict";
@@ -534,13 +598,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
         getFilteredRowModel: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$table$2d$core$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["getFilteredRowModel"])(),
         enableColumnResizing: true,
         columnResizeMode: 'onChange',
-        getRowId: (row, idx)=>row.id ?? String(idx),
-        // 👇 hide the 'year' column by default (still available for filters)
-        initialState: {
-            columnVisibility: {
-                year: false
-            }
-        }
+        getRowId: (row, idx)=>row.id ?? String(idx)
     });
     const scrollRef = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRef"](null);
     const handleClearFilters = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useCallback"](()=>{
@@ -577,7 +635,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                 table: table
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 99,
+                lineNumber: 95,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -605,12 +663,12 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                     }
                                 }, `col-${col.id}`, false, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 126,
+                                    lineNumber: 122,
                                     columnNumber: 29
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 124,
+                            lineNumber: 120,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
@@ -625,6 +683,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                                 textAlign: 'left',
                                                 fontWeight: 600,
                                                 borderBottom: '1px solid #e5e5e5',
+                                                borderRight: '1px solid #f3f3f3',
                                                 padding: '8px 10px',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
@@ -650,24 +709,24 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                                    lineNumber: 160,
+                                                    lineNumber: 157,
                                                     columnNumber: 49
                                                 }, this)
                                             ]
                                         }, h.id, true, {
                                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                            lineNumber: 143,
+                                            lineNumber: 139,
                                             columnNumber: 41
                                         }, this);
                                     })
                                 }, hg.id, false, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 139,
+                                    lineNumber: 135,
                                     columnNumber: 29
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 137,
+                            lineNumber: 133,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -681,6 +740,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                         children: row.getVisibleCells().map((cell)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                 style: {
                                                     borderBottom: '1px solid #f0f0f0',
+                                                    borderRight: '1px solid #f7f7f7',
                                                     padding: '6px 10px',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
@@ -689,22 +749,22 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$table$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["flexRender"])(cell.column.columnDef.cell, cell.getContext())
                                             }, cell.id, false, {
                                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                                lineNumber: 195,
+                                                lineNumber: 192,
                                                 columnNumber: 41
                                             }, void 0))
                                     }, row.id, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 193,
+                                        lineNumber: 190,
                                         columnNumber: 33
                                     }, void 0)
                             }, void 0, false, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 186,
+                                lineNumber: 183,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 185,
+                            lineNumber: 182,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tfoot", {
@@ -718,6 +778,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                         style: {
                                             borderTop: '2px solid #e5e5e5',
+                                            borderRight: '1px solid #f7f7f7',
                                             fontWeight: 600,
                                             padding: '8px 10px',
                                             textAlign: isAmount ? 'right' : 'left'
@@ -725,35 +786,35 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                         children: content
                                     }, col.id, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 223,
+                                        lineNumber: 221,
                                         columnNumber: 37
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 214,
+                                lineNumber: 212,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 213,
+                            lineNumber: 211,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                    lineNumber: 116,
+                    lineNumber: 112,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 107,
+                lineNumber: 103,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-        lineNumber: 98,
+        lineNumber: 94,
         columnNumber: 9
     }, this);
 }

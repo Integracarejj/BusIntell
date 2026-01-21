@@ -24,7 +24,7 @@ function setFilter(
     setFilters(prev => {
         const next = prev.filter(f => f.id !== id);
         if (value !== '') {
-            const casted = id === 'year' ? Number(value) : value; // year as number
+            const casted = id === 'year' ? Number(value) : value;
             next.push({ id, value: casted as any });
         }
         return next;
@@ -43,6 +43,21 @@ function getOptions(table: Table<any>, columnId: string): string[] {
         if (str.trim().length) s.add(str);
     });
     return Array.from(s).sort((a, b) => a.localeCompare(b));
+}
+
+function Divider() {
+    return (
+        <span
+            aria-hidden="true"
+            style={{
+                width: 1,
+                height: 22,
+                background: '#e5e5e5',
+                margin: '0 10px',
+                display: 'inline-block',
+            }}
+        />
+    );
 }
 
 export default function ToolbarFilters({ filters, setFilters, onClear, onExport, table }: Props) {
@@ -69,49 +84,53 @@ export default function ToolbarFilters({ filters, setFilters, onClear, onExport,
             style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: 24,
+                gap: 0,
                 padding: '4px 4px 8px 4px',
             }}
         >
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 16 }}>
-                {items.map(({ id, label, minWidth }) => {
-                    const options = getOptions(table, id);
-                    const value = getFilterValue(filters, id);
-                    // Use label as placeholder-like first option (acts as clear/all)
-                    return (
-                        <div
-                            key={id}
+            {items.map(({ id, label, minWidth }, idx) => {
+                const options = getOptions(table, id);
+                const value = getFilterValue(filters, id);
+                const control = (
+                    <div
+                        key={id}
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '2px 10px',
+                            borderRadius: 6,
+                            border: '1px solid #e5e5e5',
+                            background: '#fff',
+                        }}
+                    >
+                        <select
+                            value={value}
+                            onChange={(e) => setFilter(setFilters, id, e.target.value)}
+                            disabled={options.length === 0}
                             style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                padding: '2px 8px',
-                                borderRadius: 6,
-                                border: '1px solid #e5e5e5',
-                                background: '#fff',
+                                border: 'none',
+                                outline: 'none',
+                                background: 'transparent',
+                                minWidth: minWidth ?? 120,
+                                cursor: options.length ? 'pointer' : 'not-allowed',
                             }}
+                            aria-label={label}
                         >
-                            <select
-                                value={value}
-                                onChange={(e) => setFilter(setFilters, id, e.target.value)}
-                                disabled={options.length === 0}
-                                style={{
-                                    border: 'none',
-                                    outline: 'none',
-                                    background: 'transparent',
-                                    minWidth: minWidth ?? 120,
-                                    cursor: options.length ? 'pointer' : 'not-allowed',
-                                }}
-                                aria-label={label}
-                            >
-                                <option value="">{label}</option>
-                                {options.map(opt => (
-                                    <option key={`${id}:${opt}`} value={opt}>{opt}</option>
-                                ))}
-                            </select>
-                        </div>
-                    );
-                })}
-            </div>
+                            <option value="">{label}</option>
+                            {options.map(opt => (
+                                <option key={`${id}:${opt}`} value={opt}>{opt}</option>
+                            ))}
+                        </select>
+                    </div>
+                );
+
+                return (
+                    <React.Fragment key={`frag-${id}`}>
+                        {control}
+                        {idx < items.length - 1 ? <Divider /> : <span style={{ width: 8 }} />}
+                    </React.Fragment>
+                );
+            })}
 
             <div style={{ marginLeft: 'auto', display: 'inline-flex', gap: 12, alignItems: 'center', color: '#666' }}>
                 <span style={{ fontSize: 12 }}>{filteredCount} rows · {communityCount} communities</span>
@@ -121,4 +140,3 @@ export default function ToolbarFilters({ filters, setFilters, onClear, onExport,
         </div>
     );
 }
-``
