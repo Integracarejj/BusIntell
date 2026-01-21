@@ -4,8 +4,12 @@ import * as React from 'react';
 import type { ColumnFiltersState, Table } from '@tanstack/react-table';
 
 type Props = {
+    /** Which pickers to show, in order. Example: ['year','quarter','budgetType','category'] */
+    ids?: Array<'year' | 'quarter' | 'month' | 'budgetType' | 'category'>;
     filters: ColumnFiltersState;
-    setFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
+    setFilters:
+    | React.Dispatch<React.SetStateAction<ColumnFiltersState>>
+    | ((updater: ColumnFiltersState | ((old: ColumnFiltersState) => ColumnFiltersState)) => void);
     onClear: () => void;
     onExport: () => void;
     table: Table<any>;
@@ -16,19 +20,24 @@ function getFilterValue(filters: ColumnFiltersState, id: string): string {
     return f?.value != null ? String(f.value) : '';
 }
 
-function setFilter(
-    setFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>,
-    id: 'community' | 'year' | 'budgetType' | 'category',
+function upsert(
+    set: Props['setFilters'],
+    id: 'year' | 'quarter' | 'month' | 'budgetType' | 'category',
     value: string
 ) {
-    setFilters(prev => {
+    const updater = (prev: ColumnFiltersState) => {
         const next = prev.filter(f => f.id !== id);
         if (value !== '') {
-            const casted = id === 'year' ? Number(value) : value;
-            next.push({ id, value: casted as any });
+            const v = id === 'year' ? Number(value) : value; // keep 'year' numeric
+            next.push({ id, value: v } as any);
         }
         return next;
-    });
+    };
+    if (typeof set === 'function' && (set as any).length === 1) {
+        (set as any)(updater);
+    } else {
+        (set as React.Dispatch<React.SetStateAction<ColumnFiltersState>>)(updater);
+    }
 }
 
 function getOptions(table: Table<any>, columnId: string): string[] {
@@ -60,23 +69,23 @@ function Divider() {
     );
 }
 
-export default function ToolbarFilters({ filters, setFilters, onClear, onExport, table }: Props) {
-    const items: Array<{ id: 'community' | 'year' | 'budgetType' | 'category'; label: string; minWidth?: number }> = [
-        { id: 'community', label: 'Community', minWidth: 160 },
-        { id: 'year', label: 'Year', minWidth: 110 },
-        { id: 'budgetType', label: 'Budget Type', minWidth: 150 },
-        { id: 'category', label: 'Category', minWidth: 160 },
-    ];
+export default function ToolbarFilters({
+    ids = ['year', 'quarter', 'budgetType', 'category'],
+    filters,
+    setFilters,
+    onClear,
+    onExport,
+    table,
+}: Props) {
+    const LABELS: Record<string, string> = {
+        year: 'Year',
+        quarter: 'Quarter',
+        month: 'Month',
+        budgetType: 'Budget Type',
+        category: 'Category',
+    };
 
     const filteredCount = table.getFilteredRowModel().rows.length;
-    const communityCount = (() => {
-        const s = new Set<string>();
-        table.getFilteredRowModel().rows.forEach(r => {
-            const v = r.getValue?.('community');
-            if (v != null) s.add(String(v));
-        });
-        return s.size;
-    })();
 
     return (
         <div
@@ -88,7 +97,8 @@ export default function ToolbarFilters({ filters, setFilters, onClear, onExport,
                 padding: '4px 4px 8px 4px',
             }}
         >
-            {items.map(({ id, label, minWidth }, idx) => {
+            {ids.map((id, idx) => {
+                const label = LABELS[id];
                 const options = getOptions(table, id);
                 const value = getFilterValue(filters, id);
                 const control = (
@@ -105,13 +115,13 @@ export default function ToolbarFilters({ filters, setFilters, onClear, onExport,
                     >
                         <select
                             value={value}
-                            onChange={(e) => setFilter(setFilters, id, e.target.value)}
+                            onChange={(e) => upsert(setFilters, id, e.target.value)}
                             disabled={options.length === 0}
                             style={{
                                 border: 'none',
                                 outline: 'none',
                                 background: 'transparent',
-                                minWidth: minWidth ?? 120,
+                                minWidth: id === 'budgetType' ? 150 : id === 'category' ? 180 : 110,
                                 cursor: options.length ? 'pointer' : 'not-allowed',
                             }}
                             aria-label={label}
@@ -127,13 +137,13 @@ export default function ToolbarFilters({ filters, setFilters, onClear, onExport,
                 return (
                     <React.Fragment key={`frag-${id}`}>
                         {control}
-                        {idx < items.length - 1 ? <Divider /> : <span style={{ width: 8 }} />}
+                        {idx < ids.length - 1 ? <Divider /> : <span style={{ width: 8 }} />}
                     </React.Fragment>
                 );
             })}
 
             <div style={{ marginLeft: 'auto', display: 'inline-flex', gap: 12, alignItems: 'center', color: '#666' }}>
-                <span style={{ fontSize: 12 }}>{filteredCount} rows · {communityCount} communities</span>
+                <span style={{ fontSize: 12 }}>{filteredCount} rows</span>
                 <button type="button" onClick={onClear}>Clear</button>
                 <button type="button" onClick={onExport}>Export CSV</button>
             </div>

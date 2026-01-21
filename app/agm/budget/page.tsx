@@ -1,148 +1,488 @@
 
 // app/agm/budget/page.tsx
-// Server Component (App Router) — loads mock data, shows summary cards, mounts BudgetGrid (TanStack).
-// NOTE: We now import the TanStack grid component, NOT the AG Grid one.
+'use client';
 
-export const runtime = "nodejs";
+import * as React from 'react';
+import type { ColumnFiltersState } from '@tanstack/react-table';
+import BudgetGrid from '../../../components/BudgetGrid.tanstack';
+import {
+    BudgetRow,
+    deriveYear,
+    deriveQuarterLabel,
+    deriveMonthLabel,
+    mapBudgetType,
+} from '../../../components/grid/columns';
 
-import { promises as fs } from "fs";
-import path from "path";
+/* ============================================================================
+   DATA LOADER (PUBLIC -> served at /budgetLines.json)
+   - Enforce exact path
+   - No fallbacks
+   - Clear surfaced errors
+   ============================================================================ */
+const DATA_URL = '/budgetLines.json' as const;
 
-// Import the grid shell only from the table file...
-import BudgetGrid from "../../../components/BudgetGrid.tanstack";
-// ...and import the BudgetLine type from your columns source of truth.
-import type { BudgetLine } from "../../../components/grid/columns";
-
-// ---- helpers (kept local; we can move to /lib later) ----
-async function loadBudgetLines(): Promise<BudgetLine[]> {
-    const filePath = path.join(process.cwd(), "data", "budgetLines.json");
-    const raw = await fs.readFile(filePath, "utf-8");
-    const json = JSON.parse(raw);
-
-    // Normalize shapes to a single array:
-    // A) Flat array
-    if (Array.isArray(json)) return json as BudgetLine[];
-    // B) { revenues: [], expenses: [] } or { lines: [] }
-    const lines: BudgetLine[] = [];
-    if (Array.isArray(json.revenues)) lines.push(...json.revenues);
-    if (Array.isArray(json.expenses)) lines.push(...json.expenses);
-    if (Array.isArray(json.lines)) lines.push(...json.lines);
-    return lines;
+async function loadRows(): Promise<BudgetRow[]> {
+    const res = await fetch(DATA_URL, { cache: 'no-store' });
+    if (!res.ok) throw new Error(`Failed to load ${DATA_URL} (HTTP ${res.status})`);
+    const json = await res.json();
+    if (!Array.isArray(json)) throw new Error(`Unexpected JSON shape from ${DATA_URL}`);
+    return json as BudgetRow[];
 }
 
+export default function AgmBudgetPage() {
+    const [rows, setRows] = React.useState<BudgetRow[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [error, setError] = React.useState<string | null>(null);
 
-function sumAmount(lines: BudgetLine[], kind: BudgetLine["type"]) {
-    return lines.reduce((acc, l) => {
-        if (l.type === kind && typeof l.amount === "number") acc += l.amount;
-        return acc;
-    }, 0);
-}
+    React.useEffect(() => {
+        let alive = true;
+        (async () => {
+            try {
+                const data = await loadRows();
+                if (!alive) return;
+                setRows(data);
+                if (data.length === 0) setError('No data found at /budgetLines.json');
+            } catch (err: any) {
+                if (!alive) return;
+                setError(err?.message || 'Failed to load /budgetLines.json');
+            } finally {
+                if (alive) setLoading(false);
+            }
+        })();
+        return () => {
+            alive = false;
+        };
+    }, []);
 
-function fmtCurrency(n: number) {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 0,
-    }).format(n);
-}
+    /* --------------------------------------------------------------------------
+       SHARED FILTER STATE (for Community / Year / Quarter / Month)
+       -------------------------------------------------------------------------- */
+    const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
+    const get = (id: string) => filters.find((f) => f.id === id)?.value ?? '';
+    const selected = {
+        community: get('community') as string,
+        year: (get('year') as number) || '',
+        quarter: get('quarter') as string,
+        month: get('month') as string,
+        budgetType: get('budgetType') as string,
+        category: get('category') as string,
+    };
 
-/**
- * Optional: clone an additional 2025 dataset from the base lines.
- * - If period is "YYYY-MM" -> replace the year with "2025"
- * - If period is "YYYY"    -> set to "2025"
- * - If null/number         -> tag as "2025"
- * You can comment this out if you don't want 2025 mock data yet.
- */
-function with2025(lines: BudgetLine[], upliftPct?: number): BudgetLine[] {
-    const uplift = typeof upliftPct === "number" ? 1 + upliftPct / 100 : 1;
-    const replaceYear = (p: string) => p.replace(/^\d{4}/, "2025");
-    const clones: BudgetLine[] = [];
+    /* --------------------------------------------------------------------------
+       OPTIONS (derived from data)
+       -------------------------------------------------------------------------- */
+    const allCommunities = React.useMemo(
+        () => Array.from(new Set(rows.map((r) => r.community).filter(Boolean))).sort(),
+        [rows]
+    );
+    const allYears = React.useMemo(
+        () => Array.from(new Set(rows.map((r) => deriveYear(r.period)).filter(Boolean))).sort() as number[],
+        [rows]
+    );
+    const allQuarters = React.useMemo(
+        () => Array.from(new Set(rows.map((r) => deriveQuarterLabel(r.period)).filter(Boolean))).sort(),
+        [rows]
+    );
+    const allMonths = React.useMemo(
+        () => Array.from(new Set(rows.map((r) => deriveMonthLabel(r.period)).filter(Boolean))).sort(),
+        [rows]
+    );
+    const revenueCats = React.useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    rows
+                        .filter((r) => mapBudgetType(r.type) === 'Revenue')
+                        .map((r) => r.category)
+                        .filter(Boolean)
+                )
+            ).sort(),
+        [rows]
+    );
+    const expenseCats = React.useMemo(
+        () =>
+            Array.from(
+                new Set(
+                    rows
+                        .filter((r) => {
+                            const t = mapBudgetType(r.type);
+                            return t === 'Expense' || t === 'CapEx';
+                        })
+                        .map((r) => r.category)
+                        .filter(Boolean)
+                )
+            ).sort(),
+        [rows]
+    );
 
-    for (const d of lines) {
-        let period: string | number | null = (d.period as string | number | null) ?? null;
-        if (typeof period === "string") {
-            if (/^\d{4}-\d{2}$/.test(period)) period = replaceYear(period);
-            else if (/^\d{4}$/.test(period)) period = "2025";
-        } else {
-            period = "2025";
+    /* --------------------------------------------------------------------------
+       FILTERING PIPELINE FOR CARDS + TOTALS (respects Community/Year/Qtr/Month)
+       -------------------------------------------------------------------------- */
+    const filteredRows = React.useMemo(() => {
+        return rows.filter((r) => {
+            if (selected.community && r.community !== selected.community) return false;
+            const y = deriveYear(r.period);
+            if (selected.year && y !== selected.year) return false;
+            const q = deriveQuarterLabel(r.period);
+            if (selected.quarter && q !== selected.quarter) return false;
+            const m = deriveMonthLabel(r.period);
+            if (selected.month && m !== selected.month) return false;
+            const bt = mapBudgetType(r.type);
+            if (selected.budgetType && bt !== selected.budgetType) return false;
+            if (selected.category && r.category !== selected.category) return false;
+            return true;
+        });
+    }, [rows, selected]);
+
+    /* --------------------------------------------------------------------------
+       KPI CARDS (Revenue, Expense, Net)
+       -------------------------------------------------------------------------- */
+    const totals = React.useMemo(() => {
+        let rev = 0,
+            exp = 0;
+        for (const r of filteredRows) {
+            const amt = Number(r.amount ?? 0);
+            const bt = mapBudgetType(r.type);
+            if (bt === 'Revenue') rev += amt;
+            else if (bt === 'Expense' || bt === 'CapEx') exp += amt;
         }
-        const amount =
-            typeof d.amount === "number" ? Math.round(d.amount * uplift) : d.amount ?? null;
+        return { rev, exp, net: rev - exp };
+    }, [filteredRows]);
 
-        clones.push({ ...d, period, amount });
-    }
-    return [...lines, ...clones];
-}
+    const fmt = (n: number) =>
+        Intl.NumberFormat(undefined, {
+            style: 'currency',
+            currency: 'USD',
+            maximumFractionDigits: 0,
+        }).format(n || 0);
 
-export default async function AgmBudgetPage() {
-    const baseLines = await loadBudgetLines();
+    /* --------------------------------------------------------------------------
+       CATEGORY TOTAL SELECTORS — local state (restored working behavior)
+       -------------------------------------------------------------------------- */
+    const [revCatPick, setRevCatPick] = React.useState('');
+    const [expCatPick, setExpCatPick] = React.useState('');
 
-    // Toggle 2025 mocks by switching between these two lines:
-    // const lines = baseLines;                 // ← no 2025
-    const lines = with2025(baseLines, /* uplift % */ undefined); // ← add 2025 copy (no uplift)
+    const revCatTotal = React.useMemo(() => {
+        if (!revCatPick) return 0;
+        return filteredRows
+            .filter((r) => mapBudgetType(r.type) === 'Revenue' && r.category === revCatPick)
+            .reduce((sum, r) => sum + Number(r.amount ?? 0), 0);
+    }, [filteredRows, revCatPick]);
 
-    const totalRevenue = sumAmount(lines, "revenue");
-    const totalExpense = sumAmount(lines, "expense");
-    const net = totalRevenue - totalExpense;
+    const expCatTotal = React.useMemo(() => {
+        if (!expCatPick) return 0;
+        return filteredRows
+            .filter((r) => {
+                const t = mapBudgetType(r.type);
+                return (t === 'Expense' || t === 'CapEx') && r.category === expCatPick;
+            })
+            .reduce((sum, r) => sum + Number(r.amount ?? 0), 0);
+    }, [filteredRows, expCatPick]);
 
-    return (
-        <div className="space-y-6">
-            {/* Page title */}
-            <header className="space-y-1">
-                <h1 className="text-xl font-semibold text-slate-900">Budget</h1>
-                <p className="text-sm text-slate-600">
-                    Review and update budget lines by community, category, and period.
-                </p>
-            </header>
-
-            {/* Summary cards */}
-            <section
-                aria-label="Budget summary"
-                className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
-            >
-                <Card title="Total Revenue" value={fmtCurrency(totalRevenue)} testId="card-total-revenue" />
-                <Card title="Total Expense" value={fmtCurrency(totalExpense)} testId="card-total-expense" />
-                <Card title="Net" value={fmtCurrency(net)} testId="card-net" />
-            </section>
-
-            {/* TanStack Grid mount */}
-            <section
-                aria-label="Budget grid"
-                className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-            >
-                <div className="flex items-center justify-between">
-                    <h2 className="text-base font-semibold text-slate-900">Budget Lines</h2>
-                    <p className="text-xs text-slate-500">
-                        {lines.length} rows · {new Set(lines.map((l) => l.community)).size} communities
-                    </p>
-                </div>
-
-                {/* Mount the TanStack grid (safer side-by-side with old grid while you test) */}
-                <BudgetGrid rows={lines} />
-            </section>
+    /* --------------------------------------------------------------------------
+       SMALL UI PIECES
+       -------------------------------------------------------------------------- */
+    const SmallCard = ({ title, value }: { title: string; value: string }) => (
+        <div
+            style={{
+                background: '#fff',
+                border: '1px solid #e9eef1',
+                borderRadius: 10,
+                padding: '10px 12px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                minHeight: 64,
+            }}
+        >
+            <div style={{ fontSize: 11, color: '#7a8a99' }}>{title}</div>
+            <div style={{ fontSize: 22, fontWeight: 600 }}>{value}</div>
         </div>
     );
-}
 
-function Card({
-    title,
-    value,
-    testId,
-}: {
-    title: string;
-    value: string;
-    testId?: string;
-}) {
+    const Label = ({ children }: { children: React.ReactNode }) => (
+        <div style={{ fontSize: 12, color: '#6b7a8a', fontWeight: 600, marginBottom: 4 }}>{children}</div>
+    );
+
+    /* --------------------------------------------------------------------------
+       PAGE LAYOUT
+       -------------------------------------------------------------------------- */
+    const CATEGORY_WIDTH = 420; // width of category dropdowns
+    const RIGHT_PANEL_MAX = 540; // max width of right-hand column
+    const COMPACT = 120; // compact width for Year/Quarter/Month
+
     return (
-        <div
-            className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
-            data-testid={testId}
-        >
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                {title}
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-slate-900">{value}</p>
-        </div>
+        <main style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {/* ROW 1: Community (left) | RIGHT PANEL (Revenue totals row moved up) */}
+            <section
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: '280px 1fr',
+                    columnGap: 220,
+                    alignItems: 'center',
+                    marginBottom: 6,
+                }}
+            >
+                {/* Community */}
+                <div>
+                    <Label>Community</Label>
+                    <select
+                        value={selected.community}
+                        onChange={(e) =>
+                            setFilters((prev) => {
+                                const v = e.target.value || '';
+                                const next = prev.filter((f) => f.id !== 'community');
+                                if (v) next.push({ id: 'community', value: v });
+                                return next;
+                            })
+                        }
+                        style={{
+                            width: '100%',
+                            padding: '8px 10px',
+                            borderRadius: 8,
+                            border: '1px solid #e5e5e5',
+                        }}
+                    >
+                        <option value="">All</option>
+                        {allCommunities.map((c) => (
+                            <option key={c} value={c}>
+                                {c}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* RIGHT COLUMN — start with Revenue Category Totals (moved up; no stray label) */}
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: RIGHT_PANEL_MAX,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 18,
+                            marginTop: -4, // subtle lift
+                        }}
+                    >
+                        {/* Revenue Category Totals (actual, working) */}
+                        <div>
+                            <Label>Revenue Category Totals</Label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'auto 120px', gap: 12 }}>
+                                <select
+                                    value={revCatPick}
+                                    onChange={(e) => setRevCatPick(e.target.value)}
+                                    style={{
+                                        width: CATEGORY_WIDTH,
+                                        padding: '8px 10px',
+                                        borderRadius: 8,
+                                        border: '1px solid #e5e5e5',
+                                    }}
+                                >
+                                    <option value="">Pick category</option>
+                                    {revenueCats.map((c) => (
+                                        <option key={`rev-${c}`} value={c}>
+                                            {c}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div
+                                    style={{
+                                        border: '1px solid #e5e5e5',
+                                        borderRadius: 8,
+                                        padding: '8px 10px',
+                                        textAlign: 'right',
+                                        background: '#fff',
+                                        fontWeight: 600,
+                                        width: 120,
+                                    }}
+                                >
+                                    {fmt(revCatTotal)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* ROW 2: KPI Cards (left) | Expense totals + Y/Q/M row (right) */}
+            <section
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: '280px 1fr',
+                    columnGap: 220,
+                    alignItems: 'start',
+                }}
+            >
+                {/* KPI Cards lifted closer under Community */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: -6 }}>
+                    <SmallCard title="TOTAL REVENUE" value={fmt(totals.rev)} />
+                    <SmallCard title="TOTAL EXPENSE" value={fmt(totals.exp)} />
+                    <SmallCard title="NET" value={fmt(totals.net)} />
+                </div>
+
+                {/* Right column contents */}
+                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    <div
+                        style={{
+                            width: '100%',
+                            maxWidth: RIGHT_PANEL_MAX,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 18,
+                            marginTop: -10,
+                        }}
+                    >
+                        {/* Expense Category Totals (working) */}
+                        <div>
+                            <Label>Expense Category Totals</Label>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'auto 120px', gap: 12 }}>
+                                <select
+                                    value={expCatPick}
+                                    onChange={(e) => setExpCatPick(e.target.value)}
+                                    style={{
+                                        width: CATEGORY_WIDTH,
+                                        padding: '8px 10px',
+                                        borderRadius: 8,
+                                        border: '1px solid #e5e5e5',
+                                    }}
+                                >
+                                    <option value="">Pick category</option>
+                                    {expenseCats.map((c) => (
+                                        <option key={`exp-${c}`} value={c}>
+                                            {c}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div
+                                    style={{
+                                        border: '1px solid #e5e5e5',
+                                        borderRadius: 8,
+                                        padding: '8px 10px',
+                                        textAlign: 'right',
+                                        background: '#fff',
+                                        fontWeight: 600,
+                                        width: 120,
+                                    }}
+                                >
+                                    {fmt(expCatTotal)}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Year / Quarter / Month (compact row) */}
+                        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
+                            <div>
+                                <Label>Year</Label>
+                                <select
+                                    value={String(selected.year || '')}
+                                    onChange={(e) =>
+                                        setFilters((f) => {
+                                            const next = f.filter((x) => x.id !== 'year');
+                                            if (e.target.value) next.push({ id: 'year', value: Number(e.target.value) });
+                                            return next;
+                                        })
+                                    }
+                                    style={{
+                                        width: COMPACT,
+                                        padding: '8px 10px',
+                                        borderRadius: 8,
+                                        border: '1px solid #e5e5e5',
+                                    }}
+                                >
+                                    <option value="">All</option>
+                                    {allYears.map((y) => (
+                                        <option key={y} value={y}>
+                                            {y}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <Label>Quarter</Label>
+                                <select
+                                    value={selected.quarter}
+                                    onChange={(e) =>
+                                        setFilters((f) => {
+                                            const next = f.filter((x) => x.id !== 'quarter');
+                                            if (e.target.value) next.push({ id: 'quarter', value: e.target.value });
+                                            return next;
+                                        })
+                                    }
+                                    style={{
+                                        width: COMPACT,
+                                        padding: '8px 10px',
+                                        borderRadius: 8,
+                                        border: '1px solid #e5e5e5',
+                                    }}
+                                >
+                                    <option value="">All</option>
+                                    {allQuarters.map((q) => (
+                                        <option key={q} value={q}>
+                                            {q}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <Label>Month</Label>
+                                <select
+                                    value={selected.month}
+                                    onChange={(e) =>
+                                        setFilters((f) => {
+                                            const next = f.filter((x) => x.id !== 'month');
+                                            if (e.target.value) next.push({ id: 'month', value: e.target.value });
+                                            return next;
+                                        })
+                                    }
+                                    style={{
+                                        width: COMPACT,
+                                        padding: '8px 10px',
+                                        borderRadius: 8,
+                                        border: '1px solid #e5e5e5',
+                                    }}
+                                >
+                                    <option value="">All</option>
+                                    {allMonths.map((m) => (
+                                        <option key={m} value={m}>
+                                            {m}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* GRID (toolbar row hidden; keep component intact for future grouping UI) */}
+            <div id="grid-wrapper" style={{ marginTop: -10 }}>
+                <style jsx>{`
+          #grid-wrapper .grid-toolbar {
+            display: none !important;
+          }
+        `}</style>
+
+                <BudgetGrid
+                    rows={rows}
+                    filters={filters}
+                    onFiltersChange={setFilters}
+                    onUpdateAmount={(rowIndex, newValue) =>
+                        setRows((prev) => {
+                            if (rowIndex < 0 || rowIndex >= prev.length) return prev;
+                            const next = prev.slice();
+                            next[rowIndex] = { ...next[rowIndex], amount: newValue };
+                            return next;
+                        })
+                    }
+                    toolbarIds={[]} // nothing rendered; toolbar hidden by CSS anyway
+                />
+            </div>
+
+            {loading && <div style={{ color: '#6b7a8a' }}>Loading data…</div>}
+            {error && <div style={{ color: 'crimson' }}>{error}</div>}
+        </main>
     );
 }
 ``

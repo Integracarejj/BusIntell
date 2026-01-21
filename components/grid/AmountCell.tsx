@@ -1,83 +1,118 @@
 
-"use client";
+// components/grid/AmountCell.tsx
+import * as React from 'react';
+import type { CellContext } from '@tanstack/react-table';
+import type { BudgetRow } from './columns';
 
-import * as React from "react";
+// Currency helpers
+const fmt = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+});
 
-/**
- * AmountCell — standalone inline editor for the "Amount" column.
- * - Click to enter edit mode
- * - Commit on Enter/blur; Escape cancels
- * - Persists via table.options.meta.updateRow(rowIndex, { amount: next })
- *
- * Requirements from parent table:
- *   - The TanStack Table instance must define `meta.updateRow(index, partial)`
- *     which will update backing data (see BudgetGrid.tanstack.tsx).
- */
+function parseCurrency(input: string): number | null {
+    // Accept: "$480,000", "480000", "480,000", "480000.00"
+    if (input == null) return null;
+    const stripped = String(input).replace(/[^0-9.-]/g, '');
+    if (stripped.trim() === '') return null;
+    const n = Number(stripped);
+    return Number.isFinite(n) ? n : null;
+}
 
-export default function AmountCell({
-    getValue,
-    row,
-    table,
-}: {
-    getValue: () => number | null | undefined;
-    row: any;
-    table: any;
-}) {
-    const initial = getValue();
-    const [editing, setEditing] = React.useState(false);
-    const [draft, setDraft] = React.useState<number | "">(
-        typeof initial === "number" ? initial : initial == null ? "" : Number(initial)
+type TableMeta = {
+    updateAmount?: (rowId: string, newValue: number) => void;
+};
+
+export default function AmountCell(ctx: CellContext<BudgetRow, unknown>) {
+    const { row, getValue, table } = ctx;
+    const meta = table.options.meta as TableMeta | undefined;
+
+    // Show formatted currency when not editing; turn into an <input> when focused/double-clicked
+    const initial = getValue() as number | string | null | undefined;
+    const initialNumber =
+        typeof initial === 'number'
+            ? initial
+            : typeof initial === 'string'
+                ? Number(initial)
+                : null;
+
+    const [isEditing, setEditing] = React.useState(false);
+    const [draft, setDraft] = React.useState(
+        initialNumber != null ? fmt.format(initialNumber) : ''
     );
 
-    // Format helper (display only)
-    const fmtUSD = React.useCallback(
-        (n: number) =>
-            new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-                maximumFractionDigits: 0,
-            }).format(n),
-        []
-    );
+    // Keep local draft in sync if the underlying cell changes from elsewhere
+    React.useEffect(() => {
+        const n =
+            typeof initial === 'number'
+                ? initial
+                : typeof initial === 'string'
+                    ? Number(initial)
+                    : null;
+        setDraft(n != null ? fmt.format(n) : '');
+    }, [initial]);
 
-    const commit = () => {
-        const next = draft === "" ? null : Number(draft);
-        table.options.meta?.updateRow?.(row.index, { amount: next });
+    const commit = React.useCallback(() => {
+        const n = parseCurrency(draft);
+        if (n != null && meta?.updateAmount) {
+            meta.updateAmount(row.id, n);
+        }
         setEditing(false);
+    }, [draft, meta, row.id]);
+
+    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            commit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            // Revert draft to current cell value
+            const n =
+                typeof initial === 'number'
+                    ? initial
+                    : typeof initial === 'string'
+                        ? Number(initial)
+                        : null;
+            setDraft(n != null ? fmt.format(n) : '');
+            setEditing(false);
+        }
     };
 
-    const cancel = () => {
-        // Revert to current value in the row
-        const current = getValue();
-        setDraft(typeof current === "number" ? current : current == null ? "" : Number(current));
-        setEditing(false);
-    };
+    if (!isEditing) {
+        const display =
+            initialNumber != null ? fmt.format(initialNumber) : '';
+        return (
+            <div
+                role="button"
+                tabIndex={0}
+                onDoubleClick={() => setEditing(true)}
+                onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') setEditing(true);
+                }}
+                style={{ cursor: 'text' }}
+            >
+                {display}
+            </div>
+        );
+    }
 
     return (
-        <div className="text-right">
-            {editing ? (
-                <input
-                    autoFocus
-                    type="number"
-                    step={1}
-                    className="w-full rounded border border-slate-300 px-2 py-1 text-right text-sm"
-                    value={draft}
-                    onChange={(e) => setDraft(e.target.value === "" ? "" : Number(e.target.value))}
-                    onBlur={commit}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") commit();
-                        if (e.key === "Escape") cancel();
-                    }}
-                />
-            ) : (
-                <button
-                    className="w-full text-right tabular-nums"
-                    onClick={() => setEditing(true)}
-                    title="Click to edit"
-                >
-                    {typeof initial === "number" ? fmtUSD(initial) : "—"}
-                </button>
-            )}
-        </div>
+        <input
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={onKeyDown}
+            inputMode="numeric"
+            style={{
+                width: '100%',
+                border: '1px solid #cfd8e3',
+                borderRadius: 4,
+                padding: '4px 6px',
+                outline: 'none',
+                textAlign: 'left',
+            }}
+        />
     );
 }

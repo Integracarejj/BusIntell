@@ -7,72 +7,109 @@ __turbopack_context__.s([
     ()=>AmountCell
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
+// components/grid/AmountCell.tsx
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
 ;
 var _s = __turbopack_context__.k.signature();
-"use client";
 ;
-function AmountCell({ getValue, row, table }) {
+// Currency helpers
+const fmt = new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+});
+function parseCurrency(input) {
+    // Accept: "$480,000", "480000", "480,000", "480000.00"
+    if (input == null) return null;
+    const stripped = String(input).replace(/[^0-9.-]/g, '');
+    if (stripped.trim() === '') return null;
+    const n = Number(stripped);
+    return Number.isFinite(n) ? n : null;
+}
+function AmountCell(ctx) {
     _s();
+    const { row, getValue, table } = ctx;
+    const meta = table.options.meta;
+    // Show formatted currency when not editing; turn into an <input> when focused/double-clicked
     const initial = getValue();
-    const [editing, setEditing] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](false);
-    const [draft, setDraft] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](typeof initial === "number" ? initial : initial == null ? "" : Number(initial));
-    // Format helper (display only)
-    const fmtUSD = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
-        "AmountCell.useCallback[fmtUSD]": (n)=>new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-                maximumFractionDigits: 0
-            }).format(n)
-    }["AmountCell.useCallback[fmtUSD]"], []);
-    const commit = ()=>{
-        const next = draft === "" ? null : Number(draft);
-        table.options.meta?.updateRow?.(row.index, {
-            amount: next
-        });
-        setEditing(false);
-    };
-    const cancel = ()=>{
-        // Revert to current value in the row
-        const current = getValue();
-        setDraft(typeof current === "number" ? current : current == null ? "" : Number(current));
-        setEditing(false);
-    };
-    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-        className: "text-right",
-        children: editing ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-            autoFocus: true,
-            type: "number",
-            step: 1,
-            className: "w-full rounded border border-slate-300 px-2 py-1 text-right text-sm",
-            value: draft,
-            onChange: (e)=>setDraft(e.target.value === "" ? "" : Number(e.target.value)),
-            onBlur: commit,
-            onKeyDown: (e)=>{
-                if (e.key === "Enter") commit();
-                if (e.key === "Escape") cancel();
+    const initialNumber = typeof initial === 'number' ? initial : typeof initial === 'string' ? Number(initial) : null;
+    const [isEditing, setEditing] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](false);
+    const [draft, setDraft] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](initialNumber != null ? fmt.format(initialNumber) : '');
+    // Keep local draft in sync if the underlying cell changes from elsewhere
+    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "AmountCell.useEffect": ()=>{
+            const n = typeof initial === 'number' ? initial : typeof initial === 'string' ? Number(initial) : null;
+            setDraft(n != null ? fmt.format(n) : '');
+        }
+    }["AmountCell.useEffect"], [
+        initial
+    ]);
+    const commit = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "AmountCell.useCallback[commit]": ()=>{
+            const n = parseCurrency(draft);
+            if (n != null && meta?.updateAmount) {
+                meta.updateAmount(row.id, n);
             }
+            setEditing(false);
+        }
+    }["AmountCell.useCallback[commit]"], [
+        draft,
+        meta,
+        row.id
+    ]);
+    const onKeyDown = (e)=>{
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            commit();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            // Revert draft to current cell value
+            const n = typeof initial === 'number' ? initial : typeof initial === 'string' ? Number(initial) : null;
+            setDraft(n != null ? fmt.format(n) : '');
+            setEditing(false);
+        }
+    };
+    if (!isEditing) {
+        const display = initialNumber != null ? fmt.format(initialNumber) : '';
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            role: "button",
+            tabIndex: 0,
+            onDoubleClick: ()=>setEditing(true),
+            onKeyDown: (e)=>{
+                if (e.key === 'Enter' || e.key === ' ') setEditing(true);
+            },
+            style: {
+                cursor: 'text'
+            },
+            children: display
         }, void 0, false, {
             fileName: "[project]/components/grid/AmountCell.tsx",
-            lineNumber: 59,
-            columnNumber: 17
-        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-            className: "w-full text-right tabular-nums",
-            onClick: ()=>setEditing(true),
-            title: "Click to edit",
-            children: typeof initial === "number" ? fmtUSD(initial) : "—"
-        }, void 0, false, {
-            fileName: "[project]/components/grid/AmountCell.tsx",
-            lineNumber: 73,
-            columnNumber: 17
-        }, this)
+            lineNumber: 86,
+            columnNumber: 13
+        }, this);
+    }
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+        autoFocus: true,
+        value: draft,
+        onChange: (e)=>setDraft(e.target.value),
+        onBlur: commit,
+        onKeyDown: onKeyDown,
+        inputMode: "numeric",
+        style: {
+            width: '100%',
+            border: '1px solid #cfd8e3',
+            borderRadius: 4,
+            padding: '4px 6px',
+            outline: 'none',
+            textAlign: 'left'
+        }
     }, void 0, false, {
         fileName: "[project]/components/grid/AmountCell.tsx",
-        lineNumber: 57,
+        lineNumber: 101,
         columnNumber: 9
     }, this);
 }
-_s(AmountCell, "FQIHIwYP1+ycIgA0vZE0QdUVAM4=");
+_s(AmountCell, "cW8IfUHMQFSrfzS+Pp7UjlYyXu4=");
 _c = AmountCell;
 var _c;
 __turbopack_context__.k.register(_c, "AmountCell");
@@ -650,6 +687,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
+// ---------- helpers ----------
 function toCsv(rows, visibleKeys) {
     const esc = (v)=>{
         if (v == null) return '';
@@ -675,13 +713,45 @@ function downloadBlob(filename, content, mime = 'text/csv;charset=utf-8') {
     a.remove();
     URL.revokeObjectURL(url);
 }
+function toNumber(v) {
+    if (typeof v === 'number') return v;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
+}
+function formatCurrency(n) {
+    return Intl.NumberFormat(undefined, {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+    }).format(n || 0);
+}
 function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
     _s();
-    const [data] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]({
+    const [data, setData] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]({
         "BudgetGrid.useState": ()=>rows ?? []
     }["BudgetGrid.useState"]);
     const [sorting, setSorting] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](initialSorting);
     const [columnFilters, setColumnFilters] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](initialFilters);
+    // Updater used by AmountCell via table.options.meta.updateAmount
+    const updateAmount = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "BudgetGrid.useCallback[updateAmount]": (rowId, newValue)=>{
+            setData({
+                "BudgetGrid.useCallback[updateAmount]": (prev)=>{
+                    // Row ids are index-based fallback in our getRowId; coerce if needed
+                    const idx = Number.isFinite(Number(rowId)) ? Number(rowId) : prev.findIndex({
+                        "BudgetGrid.useCallback[updateAmount]": (_r, i)=>String(i) === rowId
+                    }["BudgetGrid.useCallback[updateAmount]"]);
+                    if (idx < 0 || idx >= prev.length) return prev;
+                    const next = prev.slice();
+                    next[idx] = {
+                        ...next[idx],
+                        amount: newValue
+                    };
+                    return next;
+                }
+            }["BudgetGrid.useCallback[updateAmount]"]);
+        }
+    }["BudgetGrid.useCallback[updateAmount]"], []);
     const table = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$table$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["useReactTable"])({
         data,
         columns: __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"],
@@ -698,9 +768,16 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
         columnResizeMode: 'onChange',
         getRowId: {
             "BudgetGrid.useReactTable[table]": (row, idx)=>row.id ?? String(idx)
-        }["BudgetGrid.useReactTable[table]"]
+        }["BudgetGrid.useReactTable[table]"],
+        // >>> expose meta so cells can call back into the table
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore tanstack's TableOptions allows unknown meta
+        meta: {
+            updateAmount
+        }
     });
     const scrollRef = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    // ---------- toolbar actions ----------
     const handleClearFilters = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
         "BudgetGrid.useCallback[handleClearFilters]": ()=>{
             setColumnFilters([]);
@@ -724,9 +801,34 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
     }["BudgetGrid.useCallback[handleExportCsv]"], [
         table
     ]);
-    const totals = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$totals$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildTotalsFromTable"])(table, [
-        'amount'
+    // ---------- live totals (filter-aware & edit-aware) ----------
+    const filteredRows = table.getFilteredRowModel().rows;
+    const yearFilter = columnFilters.find((f)=>f.id === 'year')?.value;
+    const totalsLive = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
+        "BudgetGrid.useMemo[totalsLive]": ()=>{
+            let rev = 0, exp = 0;
+            for (const r of filteredRows){
+                if (yearFilter !== undefined && yearFilter !== null) {
+                    const y = r.getValue?.('year');
+                    const yWanted = typeof yearFilter === 'string' ? parseInt(yearFilter, 10) : yearFilter;
+                    if (y !== yWanted) continue;
+                }
+                const amt = toNumber(r.original.amount);
+                const bt = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mapBudgetType"])(r.original.type);
+                if (bt === 'Revenue') rev += amt;
+                else if (bt === 'Expense' || bt === 'CapEx') exp += amt;
+            }
+            return {
+                rev,
+                exp,
+                net: rev - exp
+            };
+        }
+    }["BudgetGrid.useMemo[totalsLive]"], [
+        filteredRows,
+        yearFilter
     ]);
+    // ---------- render ----------
     const leafCols = table.getVisibleLeafColumns();
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
         style: {
@@ -735,6 +837,44 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
             gap: 12
         },
         children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, minmax(240px, 1fr))',
+                    gap: 16,
+                    marginTop: 4
+                },
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SummaryCard, {
+                        title: "TOTAL REVENUE",
+                        value: formatCurrency(totalsLive.rev)
+                    }, void 0, false, {
+                        fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+                        lineNumber: 155,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SummaryCard, {
+                        title: "TOTAL EXPENSE",
+                        value: formatCurrency(totalsLive.exp)
+                    }, void 0, false, {
+                        fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+                        lineNumber: 156,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SummaryCard, {
+                        title: "NET",
+                        value: formatCurrency(totalsLive.net)
+                    }, void 0, false, {
+                        fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+                        lineNumber: 157,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+                lineNumber: 147,
+                columnNumber: 13
+            }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$ToolbarFilters$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                 filters: columnFilters,
                 setFilters: setColumnFilters,
@@ -743,7 +883,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                 table: table
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 95,
+                lineNumber: 161,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -771,12 +911,12 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                     }
                                 }, `col-${col.id}`, false, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 122,
+                                    lineNumber: 189,
                                     columnNumber: 29
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 120,
+                            lineNumber: 187,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("thead", {
@@ -788,7 +928,7 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                             style: {
                                                 position: 'relative',
                                                 background: 'var(--th-bg, #f8f8f8)',
-                                                textAlign: 'left',
+                                                textAlign: 'center',
                                                 fontWeight: 600,
                                                 borderBottom: '1px solid #e5e5e5',
                                                 borderRight: '1px solid #f3f3f3',
@@ -817,24 +957,24 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                                    lineNumber: 157,
+                                                    lineNumber: 224,
                                                     columnNumber: 49
                                                 }, this)
                                             ]
                                         }, h.id, true, {
                                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                            lineNumber: 139,
+                                            lineNumber: 206,
                                             columnNumber: 41
                                         }, this);
                                     })
                                 }, hg.id, false, {
                                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                    lineNumber: 135,
+                                    lineNumber: 202,
                                     columnNumber: 29
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 133,
+                            lineNumber: 200,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -845,95 +985,145 @@ function BudgetGrid({ rows, initialSorting = [], initialFilters = [] }) {
                                 scrollContainerRef: scrollRef,
                                 visibleColumnCount: leafCols.length,
                                 renderRow: (row)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
-                                        children: row.getVisibleCells().map((cell)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
+                                        children: row.getVisibleCells().map((cell)=>{
+                                            const isAmount = cell.column.id === 'amount' || cell.column.columnDef.meta?.isNumeric;
+                                            return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                 style: {
                                                     borderBottom: '1px solid #f0f0f0',
                                                     borderRight: '1px solid #f7f7f7',
                                                     padding: '6px 10px',
                                                     overflow: 'hidden',
                                                     textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap'
+                                                    whiteSpace: 'nowrap',
+                                                    textAlign: 'left'
                                                 },
                                                 children: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$table$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["flexRender"])(cell.column.columnDef.cell, cell.getContext())
                                             }, cell.id, false, {
                                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                                lineNumber: 192,
-                                                columnNumber: 41
-                                            }, void 0))
+                                                lineNumber: 261,
+                                                columnNumber: 45
+                                            }, void 0);
+                                        })
                                     }, row.id, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 190,
+                                        lineNumber: 257,
                                         columnNumber: 33
                                     }, void 0)
                             }, void 0, false, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 183,
+                                lineNumber: 250,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 182,
+                            lineNumber: 249,
                             columnNumber: 21
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tfoot", {
                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
                                 children: leafCols.map((col, idx)=>{
                                     const isAmount = col.id === 'amount' || col.columnDef.meta?.isNumeric;
-                                    const content = col.id === 'amount' ? Intl.NumberFormat(undefined, {
-                                        style: 'currency',
-                                        currency: 'USD'
-                                    }).format(totals.amount ?? 0) : idx === 0 ? 'Totals' : '';
+                                    const totalObj = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$totals$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["buildTotalsFromTable"])(table, [
+                                        'amount'
+                                    ]); // filtered totals
+                                    const content = col.id === 'amount' ? formatCurrency(totalObj.amount ?? 0) : idx === 0 ? 'Totals' : '';
                                     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                         style: {
                                             borderTop: '2px solid #e5e5e5',
                                             borderRight: '1px solid #f7f7f7',
                                             fontWeight: 600,
                                             padding: '8px 10px',
-                                            textAlign: isAmount ? 'right' : 'left'
+                                            textAlign: 'left'
                                         },
                                         children: content
                                     }, col.id, false, {
                                         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                        lineNumber: 221,
+                                        lineNumber: 293,
                                         columnNumber: 37
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                                lineNumber: 212,
+                                lineNumber: 283,
                                 columnNumber: 25
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                            lineNumber: 211,
+                            lineNumber: 282,
                             columnNumber: 21
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                    lineNumber: 112,
+                    lineNumber: 179,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-                lineNumber: 103,
+                lineNumber: 170,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/BudgetGrid.tanstack.tsx",
-        lineNumber: 94,
+        lineNumber: 145,
         columnNumber: 9
     }, this);
 }
-_s(BudgetGrid, "PvJ5kcmmqo59MP1/J6ITTYQU1Bo=", false, function() {
+_s(BudgetGrid, "B5ii21K05e0Bm/MunAT0TM8Rq34=", false, function() {
     return [
         __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$tanstack$2f$react$2d$table$2f$build$2f$lib$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__["useReactTable"]
     ];
 });
 _c = BudgetGrid;
-var _c;
+// ---------- small presentational card ----------
+function SummaryCard({ title, value }) {
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        style: {
+            background: '#fff',
+            border: '1px solid #e9eef1',
+            borderRadius: 10,
+            padding: '16px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 6,
+            minHeight: 86
+        },
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    fontSize: 12,
+                    color: '#7a8a99',
+                    letterSpacing: 0.4
+                },
+                children: title
+            }, void 0, false, {
+                fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+                lineNumber: 330,
+                columnNumber: 13
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    fontSize: 28,
+                    fontWeight: 600
+                },
+                children: value
+            }, void 0, false, {
+                fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+                lineNumber: 331,
+                columnNumber: 13
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/components/BudgetGrid.tanstack.tsx",
+        lineNumber: 318,
+        columnNumber: 9
+    }, this);
+}
+_c1 = SummaryCard;
+var _c, _c1;
 __turbopack_context__.k.register(_c, "BudgetGrid");
+__turbopack_context__.k.register(_c1, "SummaryCard");
 if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelpers !== null) {
     __turbopack_context__.k.registerExports(__turbopack_context__.m, globalThis.$RefreshHelpers$);
 }
