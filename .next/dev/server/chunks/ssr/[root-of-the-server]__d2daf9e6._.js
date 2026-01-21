@@ -66,6 +66,7 @@ __turbopack_context__.s([
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.js [app-rsc] (ecmascript)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f$fs__$5b$external$5d$__$28$fs$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/fs [external] (fs, cjs)");
 var __TURBOPACK__imported__module__$5b$externals$5d2f$path__$5b$external$5d$__$28$path$2c$__cjs$29$__ = __turbopack_context__.i("[externals]/path [external] (path, cjs)");
+// Import the grid shell only from the table file...
 var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BudgetGrid$2e$tanstack$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/components/BudgetGrid.tanstack.tsx [app-rsc] (ecmascript)");
 ;
 const runtime = "nodejs";
@@ -149,7 +150,7 @@ async function AgmBudgetPage() {
                         children: "Budget"
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 87,
+                        lineNumber: 92,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -157,13 +158,13 @@ async function AgmBudgetPage() {
                         children: "Review and update budget lines by community, category, and period."
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 88,
+                        lineNumber: 93,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 86,
+                lineNumber: 91,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -176,7 +177,7 @@ async function AgmBudgetPage() {
                         testId: "card-total-revenue"
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 98,
+                        lineNumber: 103,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(Card, {
@@ -185,7 +186,7 @@ async function AgmBudgetPage() {
                         testId: "card-total-expense"
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 99,
+                        lineNumber: 104,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(Card, {
@@ -194,13 +195,13 @@ async function AgmBudgetPage() {
                         testId: "card-net"
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 100,
+                        lineNumber: 105,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 94,
+                lineNumber: 99,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -215,7 +216,7 @@ async function AgmBudgetPage() {
                                 children: "Budget Lines"
                             }, void 0, false, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 109,
+                                lineNumber: 114,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -228,32 +229,32 @@ async function AgmBudgetPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 110,
+                                lineNumber: 115,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 108,
+                        lineNumber: 113,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BudgetGrid$2e$tanstack$2e$tsx__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
                         rows: lines
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 116,
+                        lineNumber: 121,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 104,
+                lineNumber: 109,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/agm/budget/page.tsx",
-        lineNumber: 84,
+        lineNumber: 89,
         columnNumber: 9
     }, this);
 }
@@ -267,7 +268,7 @@ function Card({ title, value, testId }) {
                 children: title
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 136,
+                lineNumber: 141,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -275,13 +276,13 @@ function Card({ title, value, testId }) {
                 children: value
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 139,
+                lineNumber: 144,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/agm/budget/page.tsx",
-        lineNumber: 132,
+        lineNumber: 137,
         columnNumber: 9
     }, this);
 }

@@ -1,162 +1,242 @@
 
-"use client";
+// components/BudgetGrid.tanstack.tsx
+'use client';
 
-import React, { useMemo, useState } from "react";
+import * as React from 'react';
 import {
-    RowSelectionState,
-    SortingState,
+    Cell,
     ColumnFiltersState,
+    Row,
+    SortingState,
+    TableOptions,
+    flexRender,
     getCoreRowModel,
     getFilteredRowModel,
     getSortedRowModel,
     useReactTable,
-    flexRender,
-    ColumnPinningState,
-    GroupingState,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
-import ToolbarFilters from "./grid/ToolbarFilters";
-import VirtualRows from "./grid/VirtualRows";
-import { createBudgetColumns, type BudgetLine } from "./grid/columns";
-import { sumColumnFiltered, fmtUSD } from "./grid/totals";
-import { exportRowsToCsv } from "./grid/export";
+import columns, { BudgetRow } from './grid/columns';
+import ToolbarFilters from './grid/ToolbarFilters';
+import VirtualRows from './grid/VirtualRows';
+import { buildTotalsFromTable } from './grid/totals';
 
-type Props = { rows: BudgetLine[] };
+type Props = {
+    rows?: BudgetRow[];
+    initialSorting?: SortingState;
+    initialFilters?: ColumnFiltersState;
+};
 
-export default function BudgetGrid({ rows }: Props) {
-    // local states
-    const [data, setData] = useState<BudgetLine[]>(() => rows ?? []);
-    const [sorting, setSorting] = useState<SortingState>([]);
-    const [filters, setFilters] = useState<ColumnFiltersState>([]);
-    const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-    const [columnVisibility, setColumnVisibility] = useState<Record<string, boolean>>({});
-    const [columnPinning, setColumnPinning] = useState<ColumnPinningState>({ left: [], right: [] });
-    const [grouping, setGrouping] = useState<GroupingState>([]);
+function toCsv(rows: BudgetRow[], visibleKeys: string[]): string {
+    const esc = (v: unknown) => {
+        if (v == null) return '';
+        const s = String(v);
+        return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = visibleKeys.map(esc).join(',');
+    const body = rows.map(r => visibleKeys.map(k => esc((r as any)[k])).join(',')).join('\n');
+    return `${header}\n${body}`;
+}
+function downloadBlob(filename: string, content: string, mime = 'text/csv;charset=utf-8') {
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+}
 
-    // columns (from factory)
-    const columns = useMemo(() => createBudgetColumns(), []);
+export default function BudgetGrid({
+    rows,
+    initialSorting = [],
+    initialFilters = [],
+}: Props) {
+    const [data] = React.useState<BudgetRow[]>(() => rows ?? []);
+    const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(initialFilters);
 
-    // table
-    const table = useReactTable({
+    const table = useReactTable<BudgetRow>({
         data,
         columns,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        getSortedRowModel: getSortedRowModel(),
-
-        state: {
-            sorting,
-            columnFilters: filters,
-            rowSelection,
-            columnVisibility,
-            columnPinning,
-            grouping,
-        },
-
+        state: { sorting, columnFilters },
         onSortingChange: setSorting,
-        onColumnFiltersChange: setFilters,
-        onRowSelectionChange: setRowSelection,
-        onColumnVisibilityChange: setColumnVisibility,
-        onColumnPinningChange: setColumnPinning,
-        onGroupingChange: setGrouping,
-
-        enableRowSelection: true,
-
-        meta: {
-            updateRow: (rowIndex: number, partial: Partial<BudgetLine>) => {
-                setData((old) => {
-                    const next = old.slice();
-                    next[rowIndex] = { ...next[rowIndex], ...partial };
-                    return next;
-                });
-            },
+        onColumnFiltersChange: setColumnFilters,
+        getCoreRowModel: getCoreRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        enableColumnResizing: true,
+        columnResizeMode: 'onChange',
+        getRowId: (row, idx) => (row as any).id ?? String(idx),
+        // 👇 hide the 'year' column by default (still available for filters)
+        initialState: {
+            columnVisibility: { year: false },
         },
+    } as TableOptions<BudgetRow>);
 
-        getRowId: (row) =>
-            `${row.community ?? ""}${row.type ?? ""}${row.category ?? ""}${row.subCategory ?? ""}${row.period ?? ""
-            }`,
-    });
+    const scrollRef = React.useRef<HTMLDivElement>(null);
 
-    // toolbar actions
-    const clearAllFilters = () => setFilters([]);
-    const exportCsv = () => {
-        const out = table.getRowModel().rows.map((r) => r.original);
-        exportRowsToCsv(out, columns);
-    };
+    const handleClearFilters = React.useCallback(() => {
+        setColumnFilters([]);
+        table.resetColumnFilters();
+    }, [table]);
 
-    // totals (filtered)
-    const totalFiltered = useMemo(
-        () => sumColumnFiltered(table, (r) => r.amount ?? null),
-        [table, data, filters, sorting, grouping]
-    );
+    const handleExportCsv = React.useCallback(() => {
+        const visibleCols = table.getVisibleLeafColumns();
+        const keys = visibleCols.map(c => (c.columnDef as any).accessorKey ?? c.id);
+        const filtered = table.getFilteredRowModel().rows.map(r => r.original);
+        const csv = toCsv(filtered, keys);
+        downloadBlob(`budget-grid-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+    }, [table]);
+
+    const totals = buildTotalsFromTable(table, ['amount']);
+    const leafCols = table.getVisibleLeafColumns();
 
     return (
-        <section aria-label="Budget grid" className="space-y-3">
-            {/* Toolbar */}
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <ToolbarFilters
+                filters={columnFilters}
+                setFilters={setColumnFilters}
+                onClear={handleClearFilters}
+                onExport={handleExportCsv}
                 table={table}
-                filters={filters}
-                setFilters={setFilters}
-                onClear={clearAllFilters}
-                onExport={exportCsv}
             />
 
-            {/* Column headers + text filter row */}
-            <div className="rounded-t-lg border-x border-t border-slate-200 bg-slate-50">
-                <div
-                    className="grid grid-cols-[repeat(var(--cols),minmax(140px,1fr))] px-2 py-2 text-xs font-semibold text-slate-600"
+            <div
+                ref={scrollRef}
+                style={{
+                    overflow: 'auto',
+                    maxHeight: '70vh',
+                    border: '1px solid var(--border, #ddd)',
+                    borderRadius: 6,
+                }}
+            >
+                <table
                     style={{
-                        ["--cols" as any]: table
-                            .getAllColumns()
-                            .filter((col) => col.getIsVisible() && !(col.columnDef as any)?.meta?.hiddenHelper)
-                            .length,
+                        width: '100%',
+                        borderCollapse: 'separate',
+                        borderSpacing: 0,
+                        tableLayout: 'fixed',
                     }}
                 >
-                    {table.getFlatHeaders().map((header) => {
-                        if ((header.column.columnDef as any)?.meta?.hiddenHelper) return null;
+                    <colgroup>
+                        {leafCols.map(col => (
+                            <col
+                                key={`col-${col.id}`}
+                                style={{
+                                    width: col.getSize(),
+                                    minWidth: col.columnDef.minSize ?? 40,
+                                    maxWidth: col.columnDef.maxSize ?? Number.POSITIVE_INFINITY,
+                                }}
+                            />
+                        ))}
+                    </colgroup>
 
-                        return (
-                            <div key={header.id} className="pr-2">
-                                <button
-                                    className="inline-flex items-center gap-1 hover:text-slate-900"
-                                    onClick={header.column.getToggleSortingHandler()}
-                                    title="Click to sort"
-                                >
-                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                    {{
-                                        asc: " ↑",
-                                        desc: " ↓",
-                                    }[header.column.getIsSorted() as string] ?? null}
-                                </button>
+                    <thead>
+                        {table.getHeaderGroups().map(hg => (
+                            <tr key={hg.id}>
+                                {hg.headers.map(h => {
+                                    const canResize = h.column.getCanResize();
+                                    return (
+                                        <th
+                                            key={h.id}
+                                            colSpan={h.colSpan}
+                                            style={{
+                                                position: 'relative',
+                                                background: 'var(--th-bg, #f8f8f8)',
+                                                textAlign: 'left',
+                                                fontWeight: 600,
+                                                borderBottom: '1px solid #e5e5e5',
+                                                padding: '8px 10px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
+                                            {canResize && (
+                                                <div
+                                                    onMouseDown={h.getResizeHandler()}
+                                                    onTouchStart={h.getResizeHandler()}
+                                                    role="separator"
+                                                    aria-orientation="vertical"
+                                                    aria-label={`Resize ${String(h.column.id)} column`}
+                                                    style={{
+                                                        position: 'absolute',
+                                                        right: 0,
+                                                        top: 0,
+                                                        height: '100%',
+                                                        width: 6,
+                                                        cursor: 'col-resize',
+                                                        userSelect: 'none',
+                                                        touchAction: 'none',
+                                                    }}
+                                                />
+                                            )}
+                                        </th>
+                                    );
+                                })}
+                            </tr>
+                        ))}
+                    </thead>
 
-                                {header.column.getCanFilter() && (
-                                    <div className="mt-1">
-                                        <input
-                                            className="w-full rounded border border-slate-300 px-1.5 py-1 text-xs"
-                                            placeholder={
-                                                (header.column.columnDef as any).meta?.filterPlaceholder ?? "filter…"
-                                            }
-                                            value={(header.column.getFilterValue() as string) ?? ""}
-                                            onChange={(e) => header.column.setFilterValue(e.target.value)}
-                                        />
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+                    <tbody>
+                        <VirtualRows
+                            rows={table.getRowModel().rows}
+                            rowHeight={36}
+                            overscan={8}
+                            scrollContainerRef={scrollRef}
+                            visibleColumnCount={leafCols.length}
+                            renderRow={(row: Row<BudgetRow>) => (
+                                <tr key={row.id}>
+                                    {row.getVisibleCells().map((cell: Cell<BudgetRow, unknown>) => (
+                                        <td
+                                            key={cell.id}
+                                            style={{
+                                                borderBottom: '1px solid #f0f0f0',
+                                                padding: '6px 10px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                            }}
+                                        >
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </td>
+                                    ))}
+                                </tr>
+                            )}
+                        />
+                    </tbody>
 
-            {/* Virtualized body */}
-            <VirtualRows table={table} height={720} />
+                    <tfoot>
+                        <tr>
+                            {leafCols.map((col, idx) => {
+                                const isAmount = col.id === 'amount' || (col.columnDef.meta as any)?.isNumeric;
+                                const content =
+                                    col.id === 'amount'
+                                        ? Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(totals.amount ?? 0)
+                                        : (idx === 0 ? 'Totals' : '');
 
-            {/* Pinned TOTAL (filtered) */}
-            <div className="rounded-b-lg border border-teal-200 bg-teal-50 px-3 py-2 text-sm font-semibold text-teal-800">
-                TOTAL (filtered): <span className="tabular-nums">{fmtUSD(totalFiltered)}</span>
+                                return (
+                                    <td
+                                        key={col.id}
+                                        style={{
+                                            borderTop: '2px solid #e5e5e5',
+                                            fontWeight: 600,
+                                            padding: '8px 10px',
+                                            textAlign: isAmount ? 'right' : 'left',
+                                        }}
+                                    >
+                                        {content}
+                                    </td>
+                                );
+                            })}
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         </section>
     );
 }
-
-/** Re-export the type so existing imports keep working */
-export type { BudgetLine } from "./grid/columns";

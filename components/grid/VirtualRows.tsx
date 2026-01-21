@@ -1,82 +1,101 @@
 
 // components/grid/VirtualRows.tsx
-"use client";
+import * as React from 'react';
 
-import * as React from "react";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { flexRender, type Table } from "@tanstack/react-table";
+type VirtualRowsProps<T> = {
+    /** All table rows (already filtered/sorted) in display order */
+    rows: T[];
+    /** Height of a single data row in pixels (estimate) */
+    rowHeight?: number;
+    /** Extra rows to render above/below the viewport */
+    overscan?: number;
+    /**
+     * The scrollable container that wraps the <table>.
+     * Widened to Element|null to accept HTMLDivElement refs without TS variance issues.
+     */
+    scrollContainerRef: React.RefObject<Element | null>;
+    /** Number of visible (non-hidden) columns; used for spacer colSpan */
+    visibleColumnCount: number;
+    /** Render function for an individual data row as <tr>...</tr> */
+    renderRow: (row: T, rowIndex: number) => React.ReactElement;
+    /** Disable virtualization (debug or small datasets) */
+    disableVirtual?: boolean;
+};
 
 /**
- * VirtualRows — scrollable virtualized body for TanStack Table.
- * Hides helper columns (e.g., meta.hiddenHelper) automatically.
+ * Table-safe virtualization for <tbody>:
+ * - Renders only <tr>/<td> inside <tbody> (no <div>).
+ * - Uses top/bottom spacer <tr> to preserve scroll height.
+ * - SSR-safe: falls back to non-virtual on server / missing container metrics.
  */
+export function VirtualRows<T>({
+    rows,
+    rowHeight = 36,
+    overscan = 6,
+    scrollContainerRef,
+    visibleColumnCount,
+    renderRow,
+    disableVirtual,
+}: VirtualRowsProps<T>) {
+    const isServer = typeof window === 'undefined';
+    const [viewport, setViewport] = React.useState({ scrollTop: 0, height: 0 });
 
-export default function VirtualRows<TData extends object>({
-    table,
-    height = 720,
-    rowClassName,
-    toggleSelectOnRowClick = true,
-    "aria-label": ariaLabel = "Virtualized grid body",
-}: {
-    table: Table<TData>;
-    height?: number;
-    rowClassName?: (rowIndex: number) => string | undefined;
-    toggleSelectOnRowClick?: boolean;
-    "aria-label"?: string;
-}) {
-    const parentRef = React.useRef<HTMLDivElement>(null);
+    React.useEffect(() => {
+        if (disableVirtual || isServer) return;
+        // We widened the ref type; here we assert to HTMLElement at usage time
+        const el = scrollContainerRef.current as HTMLElement | null;
+        if (!el) return;
 
-    const rows = table.getRowModel().rows;
-    const virtualizer = useVirtualizer({
-        count: rows.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 40,
-        overscan: 8,
-    });
-    const virtualItems = virtualizer.getVirtualItems();
+        const handle = () => {
+            setViewport({
+                scrollTop: el.scrollTop,
+                height: el.clientHeight,
+            });
+        };
+        handle();
+
+        el.addEventListener('scroll', handle, { passive: true });
+        const ro = new ResizeObserver(handle);
+        ro.observe(el);
+
+        return () => {
+            el.removeEventListener('scroll', handle);
+            ro.disconnect();
+        };
+    }, [scrollContainerRef, disableVirtual, isServer]);
+
+    // If virtualization is disabled or we can't measure yet, render all rows
+    if (disableVirtual || isServer || !scrollContainerRef.current || viewport.height === 0) {
+        return <>{rows.map((row, i) => renderRow(row, i))}</>;
+    }
+
+    const total = rows.length;
+    const estTotalHeight = total * rowHeight;
+
+    const startIndex = Math.max(0, Math.floor(viewport.scrollTop / rowHeight) - overscan);
+    const visibleCount = Math.ceil(viewport.height / rowHeight) + overscan * 2;
+    const endIndex = Math.min(total, startIndex + visibleCount);
+
+    const topPad = startIndex * rowHeight;
+    const bottomPad = Math.max(0, estTotalHeight - topPad - (endIndex - startIndex) * rowHeight);
 
     return (
-        <div
-            ref={parentRef}
-            className="border-x border-b border-slate-200"
-            style={{ height, overflow: "auto", position: "relative" }}
-            aria-label={ariaLabel}
-        >
-            <div style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
-                {virtualItems.map((vi) => {
-                    const row = rows[vi.index];
+        <>
+            {topPad > 0 && (
+                <tr aria-hidden="true">
+                    <td colSpan={visibleColumnCount} style={{ height: topPad, padding: 0, border: 'none' }} />
+                </tr>
+            )}
 
-                    // Only render visible, non-helper columns
-                    const visibleCells = row
-                        .getVisibleCells()
-                        .filter((c) => !(c.column.columnDef as any)?.meta?.hiddenHelper);
+            {rows.slice(startIndex, endIndex).map((row, i) => renderRow(row, startIndex + i))}
 
-                    const cls =
-                        rowClassName?.(vi.index) ??
-                        `grid grid-cols-[repeat(var(--cols),minmax(140px,1fr))] border-b border-slate-100 px-2 text-sm ${row.getIsSelected() ? "bg-teal-50" : "bg-white"
-                        } hover:bg-slate-50`;
-
-                    return (
-                        <div
-                            key={row.id}
-                            className={cls}
-                            style={{
-                                transform: `translateY(${vi.start}px)`,
-                                ["--cols" as any]: visibleCells.length,
-                                height: vi.size,
-                                alignItems: "center",
-                            }}
-                            onClick={() => toggleSelectOnRowClick && row.toggleSelected()}
-                        >
-                            {visibleCells.map((cell) => (
-                                <div key={cell.id} className="pr-2">
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                </div>
-                            ))}
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
+            {bottomPad > 0 && (
+                <tr aria-hidden="true">
+                    <td colSpan={visibleColumnCount} style={{ height: bottomPad, padding: 0, border: 'none' }} />
+                </tr>
+            )}
+        </>
     );
 }
+
+export default VirtualRows;

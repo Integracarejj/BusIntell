@@ -7,7 +7,11 @@ export const runtime = "nodejs";
 
 import { promises as fs } from "fs";
 import path from "path";
-import BudgetGrid, { type BudgetLine } from "../../../components/BudgetGrid.tanstack";
+
+// Import the grid shell only from the table file...
+import BudgetGrid from "../../../components/BudgetGrid.tanstack";
+// ...and import the BudgetLine type from your columns source of truth.
+import type { BudgetLine } from "../../../components/grid/columns";
 
 // ---- helpers (kept local; we can move to /lib later) ----
 async function loadBudgetLines(): Promise<BudgetLine[]> {
@@ -25,6 +29,7 @@ async function loadBudgetLines(): Promise<BudgetLine[]> {
     if (Array.isArray(json.lines)) lines.push(...json.lines);
     return lines;
 }
+
 
 function sumAmount(lines: BudgetLine[], kind: BudgetLine["type"]) {
     return lines.reduce((acc, l) => {
@@ -54,7 +59,7 @@ function with2025(lines: BudgetLine[], upliftPct?: number): BudgetLine[] {
     const clones: BudgetLine[] = [];
 
     for (const d of lines) {
-        let period: string | number | null = d.period ?? null;
+        let period: string | number | null = (d.period as string | number | null) ?? null;
         if (typeof period === "string") {
             if (/^\d{4}-\d{2}$/.test(period)) period = replaceYear(period);
             else if (/^\d{4}$/.test(period)) period = "2025";
