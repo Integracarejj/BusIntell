@@ -247,7 +247,7 @@ export default function AgmBudgetPage() {
                     rows
                         .filter((r) => mapBudgetType(r.type) === 'Revenue')
                         .map((r) => r.subCategory)
-                        .filter((x): x is string => Boolean(x))
+                        .filter(Boolean)
                 )
             ).sort(),
         [rows]
@@ -270,7 +270,7 @@ export default function AgmBudgetPage() {
     }, [rows]);
 
     const revenueGroups: GroupedOptions = React.useMemo(
-        () => (revenueSubcats.length ? [{ group: 'Revenue', items: revenueSubcats }] : []),
+        () => (revenueSubcats.length ? [{ group: 'Revenue', items: revenueSubcats.filter((s): s is string => s !== undefined) }] : []),
         [revenueSubcats]
     );
 
