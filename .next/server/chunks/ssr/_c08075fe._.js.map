@@ -1,1 +1,1 @@
-{"version":3,"sources":[],"names":[],"mappings":""}
+{"version":3,"sources":["../../../../app/exec/insights/page.tsx"],"sourcesContent":["\r\nexport default function Placeholder() {\r\n    return <div>Coming soon.</div>;\r\n}\r\n"],"names":[],"mappings":"8LACe,SAAS,IACpB,MAAO,CAAA,EAAA,EAAA,GAAA,EAAC,MAAA,UAAI,gBAChB"}

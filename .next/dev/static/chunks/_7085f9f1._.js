@@ -2077,7 +2077,7 @@ var _s = __turbopack_context__.k.signature(), _s1 = __turbopack_context__.k.sign
 ;
 ;
 /* ============================================================================
-   DATA LOADER (PUBLIC -> served at /budgetLines.json)
+   DATA LOADER
    ============================================================================ */ const DATA_URL = '/budgetLines.json';
 async function loadRows() {
     const res = await fetch(DATA_URL, {
@@ -2099,7 +2099,7 @@ async function loadRows() {
         }));
 }
 /* ============================================================================
-   Tiny UI helpers
+   UI HELPERS
    ============================================================================ */ const Label = ({ children })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         style: {
             fontSize: 12,
@@ -2134,7 +2134,7 @@ const SmallCard = ({ title, value })=>/*#__PURE__*/ (0, __TURBOPACK__imported__m
                 children: title
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 62,
+                lineNumber: 64,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0)),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2145,13 +2145,13 @@ const SmallCard = ({ title, value })=>/*#__PURE__*/ (0, __TURBOPACK__imported__m
                 children: value
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 63,
+                lineNumber: 65,
                 columnNumber: 9
             }, ("TURBOPACK compile-time value", void 0))
         ]
     }, void 0, true, {
         fileName: "[project]/app/agm/budget/page.tsx",
-        lineNumber: 50,
+        lineNumber: 52,
         columnNumber: 5
     }, ("TURBOPACK compile-time value", void 0));
 _c1 = SmallCard;
@@ -2234,12 +2234,10 @@ function MultiSelectGrouped({ placeholder, groups, selected, onChange, width }) 
                     background: '#fff',
                     textAlign: 'left'
                 },
-                "aria-haspopup": "listbox",
-                "aria-expanded": open,
                 children: summary
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 128,
+                lineNumber: 130,
                 columnNumber: 13
             }, this),
             open && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2285,7 +2283,7 @@ function MultiSelectGrouped({ placeholder, groups, selected, onChange, width }) 
                                         onChange: ()=>toggleGroup(items)
                                     }, void 0, false, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 172,
+                                        lineNumber: 177,
                                         columnNumber: 37
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2297,13 +2295,13 @@ function MultiSelectGrouped({ placeholder, groups, selected, onChange, width }) 
                                         children: group
                                     }, void 0, false, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 180,
+                                        lineNumber: 185,
                                         columnNumber: 37
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 171,
+                                lineNumber: 176,
                                 columnNumber: 33
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2326,25 +2324,25 @@ function MultiSelectGrouped({ placeholder, groups, selected, onChange, width }) 
                                                 onChange: ()=>toggleItem(item)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                                lineNumber: 186,
+                                                lineNumber: 201,
                                                 columnNumber: 45
                                             }, this),
                                             item
                                         ]
                                     }, item, true, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 185,
+                                        lineNumber: 192,
                                         columnNumber: 41
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 183,
+                                lineNumber: 190,
                                 columnNumber: 33
                             }, this)
                         ]
                     }, group, true, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 167,
+                        lineNumber: 168,
                         columnNumber: 29
                     }, this);
                 })
@@ -2356,7 +2354,7 @@ function MultiSelectGrouped({ placeholder, groups, selected, onChange, width }) 
         ]
     }, void 0, true, {
         fileName: "[project]/app/agm/budget/page.tsx",
-        lineNumber: 127,
+        lineNumber: 129,
         columnNumber: 9
     }, this);
 }
@@ -2393,7 +2391,7 @@ function AgmBudgetPage() {
         }
     }["AgmBudgetPage.useEffect"], []);
     /* --------------------------------------------------------------------------
-       SHARED FILTER STATE (for Community / Year / Quarter / Month)
+       FILTER STATE
        -------------------------------------------------------------------------- */ const [filters, setFilters] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]([]);
     const get = (id)=>filters.find((f)=>f.id === id)?.value ?? '';
     const selected = {
@@ -2405,7 +2403,7 @@ function AgmBudgetPage() {
         category: get('category')
     };
     /* --------------------------------------------------------------------------
-       OPTIONS (derived from data)
+       OPTIONS
        -------------------------------------------------------------------------- */ const allCommunities = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
         "AgmBudgetPage.useMemo[allCommunities]": ()=>Array.from(new Set(rows.map({
                 "AgmBudgetPage.useMemo[allCommunities]": (r)=>r.community
@@ -2434,7 +2432,6 @@ function AgmBudgetPage() {
     }["AgmBudgetPage.useMemo[allMonths]"], [
         rows
     ]);
-    // Revenue subcategories (for the Revenue totals picker)
     const revenueSubcats = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
         "AgmBudgetPage.useMemo[revenueSubcats]": ()=>Array.from(new Set(rows.filter({
                 "AgmBudgetPage.useMemo[revenueSubcats]": (r)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mapBudgetType"])(r.type) === 'Revenue'
@@ -2446,7 +2443,6 @@ function AgmBudgetPage() {
     }["AgmBudgetPage.useMemo[revenueSubcats]"], [
         rows
     ]);
-    // EXPENSE GROUPING — Hybrid (A): use dash prefix if present, else use category (C)
     const expenseGroups = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
         "AgmBudgetPage.useMemo[expenseGroups]": ()=>{
             const map = new Map();
@@ -2486,20 +2482,16 @@ function AgmBudgetPage() {
         revenueSubcats
     ]);
     /* --------------------------------------------------------------------------
-       FILTERED ROWS for cards & totals (respects Community/Year/Qtr/Month)
+       FILTERED ROWS
        -------------------------------------------------------------------------- */ const filteredRows = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
         "AgmBudgetPage.useMemo[filteredRows]": ()=>{
             return rows.filter({
                 "AgmBudgetPage.useMemo[filteredRows]": (r)=>{
                     if (selected.community && r.community !== selected.community) return false;
-                    const y = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deriveYear"])(r.period);
-                    if (selected.year && y !== selected.year) return false;
-                    const q = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deriveQuarterLabel"])(r.period);
-                    if (selected.quarter && q !== selected.quarter) return false;
-                    const m = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deriveMonthLabel"])(r.period);
-                    if (selected.month && m !== selected.month) return false;
-                    const bt = (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mapBudgetType"])(r.type);
-                    if (selected.budgetType && bt !== selected.budgetType) return false;
+                    if (selected.year && (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deriveYear"])(r.period) !== selected.year) return false;
+                    if (selected.quarter && (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deriveQuarterLabel"])(r.period) !== selected.quarter) return false;
+                    if (selected.month && (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["deriveMonthLabel"])(r.period) !== selected.month) return false;
+                    if (selected.budgetType && (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$grid$2f$columns$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["mapBudgetType"])(r.type) !== selected.budgetType) return false;
                     if (selected.category && r.category !== selected.category) return false;
                     return true;
                 }
@@ -2510,7 +2502,7 @@ function AgmBudgetPage() {
         selected
     ]);
     /* --------------------------------------------------------------------------
-       KPI CARDS (Revenue, Expense, Net)
+       KPI TOTALS
        -------------------------------------------------------------------------- */ const totals = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
         "AgmBudgetPage.useMemo[totals]": ()=>{
             let rev = 0, exp = 0;
@@ -2535,7 +2527,7 @@ function AgmBudgetPage() {
             maximumFractionDigits: 0
         }).format(n || 0);
     /* --------------------------------------------------------------------------
-       CATEGORY TOTAL SELECTORS — grouped multi-select
+       CATEGORY TOTAL SELECTORS
        -------------------------------------------------------------------------- */ const [revSel, setRevSel] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](new Set());
     const [expSel, setExpSel] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](new Set());
     const revCatTotal = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
@@ -2571,7 +2563,7 @@ function AgmBudgetPage() {
        AI: state + totals in required shape + STRICT-MODE SAFE grouping
        -------------------------------------------------------------------------- */ const [aiOpen, setAiOpen] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](false);
     const [groupingKeys, setGroupingKeys] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]([]);
-    // Normalize rows for AI types: ensure shapes match AIBudgetRow exactly
+    // Normalize rows for AI types
     const aiRows = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
         "AgmBudgetPage.useMemo[aiRows]": ()=>rows.map({
                 "AgmBudgetPage.useMemo[aiRows]": (r)=>({
@@ -2636,8 +2628,7 @@ function AgmBudgetPage() {
     }["AgmBudgetPage.useMemo[aiTotals]"], [
         filteredRows
     ]);
-    // --- SAFETY: Only allow setState after the page has mounted ---
-    // Use layout effect to ensure the guard is set before child effects fire
+    // --- SAFETY: Only allow setState after the page has mounted (Strict Mode friendly) ---
     const mountedRef = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](false);
     __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"]({
         "AgmBudgetPage.useLayoutEffect": ()=>{
@@ -2654,9 +2645,7 @@ function AgmBudgetPage() {
             if (!mountedRef.current) return;
             requestAnimationFrame({
                 "AgmBudgetPage.useCallback[handleGroupingAfterRender]": ()=>{
-                    if (mountedRef.current) {
-                        setGroupingKeys(keys);
-                    }
+                    if (mountedRef.current) setGroupingKeys(keys);
                 }
             }["AgmBudgetPage.useCallback[handleGroupingAfterRender]"]);
         }
@@ -2670,18 +2659,110 @@ function AgmBudgetPage() {
             }["AgmBudgetPage.useCallback[handleFiltersChange]"]);
         }
     }["AgmBudgetPage.useCallback[handleFiltersChange]"], []);
-    const CATEGORY_WIDTH = 420;
-    const RIGHT_PANEL_MAX = 540;
-    const COMPACT = 120;
+    // --- FLOATING AI BUTTON (Option C-2) ---
+    // Position: top-right of viewport, aligned with the top of the content (the section below)
+    const sectionRef = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    const [fabTop, setFabTop] = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](96); // sensible default under the header
+    __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"]({
+        "AgmBudgetPage.useLayoutEffect": ()=>{
+            const measure = {
+                "AgmBudgetPage.useLayoutEffect.measure": ()=>{
+                    if (!sectionRef.current) return;
+                    const rect = sectionRef.current.getBoundingClientRect();
+                    // Align to the top of the content area; clamp to minimum to avoid overlapping header
+                    const nextTop = Math.max(72, Math.round(rect.top));
+                    setFabTop(nextTop);
+                }
+            }["AgmBudgetPage.useLayoutEffect.measure"];
+            // Measure after mount and on resize (layout changes)
+            measure();
+            window.addEventListener('resize', measure);
+            return ({
+                "AgmBudgetPage.useLayoutEffect": ()=>window.removeEventListener('resize', measure)
+            })["AgmBudgetPage.useLayoutEffect"];
+        }
+    }["AgmBudgetPage.useLayoutEffect"], []);
+    const CATEGORY_WIDTH = 300;
+    const RIGHT_PANEL_MAX = 400;
+    const COMPACT = 92;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
         style: {
-            padding: 16,
+            padding: 3,
             display: 'flex',
             flexDirection: 'column',
-            gap: 6
+            gap: 1
         },
         children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                style: {
+                    position: 'fixed',
+                    right: 24,
+                    top: fabTop,
+                    zIndex: 50,
+                    pointerEvents: 'auto'
+                },
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    type: "button",
+                    onClick: ()=>setAiOpen((v)=>!v),
+                    "aria-pressed": aiOpen,
+                    "aria-label": "Open AI insights",
+                    title: "Open AI insights",
+                    style: {
+                        appearance: 'none',
+                        border: '1px solid #e5e7eb',
+                        background: aiOpen ? '#111827' : '#fff',
+                        color: aiOpen ? '#fff' : '#111827',
+                        borderRadius: 8,
+                        padding: '6px 10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 18px rgba(0,0,0,0.12)'
+                    },
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
+                            width: "16",
+                            height: "16",
+                            fill: "currentColor",
+                            viewBox: "0 0 24 24",
+                            "aria-hidden": "true",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
+                                d: "M5 3l1.5 3.5L10 8l-3.5 1.5L5 13l-1.5-3.5L0 8l3.5-1.5L5 3zm11 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z"
+                            }, void 0, false, {
+                                fileName: "[project]/app/agm/budget/page.tsx",
+                                lineNumber: 541,
+                                columnNumber: 25
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/app/agm/budget/page.tsx",
+                            lineNumber: 540,
+                            columnNumber: 21
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                            style: {
+                                fontSize: 14,
+                                fontWeight: 600
+                            },
+                            children: "AI"
+                        }, void 0, false, {
+                            fileName: "[project]/app/agm/budget/page.tsx",
+                            lineNumber: 543,
+                            columnNumber: 21
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/app/agm/budget/page.tsx",
+                    lineNumber: 520,
+                    columnNumber: 17
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/app/agm/budget/page.tsx",
+                lineNumber: 511,
+                columnNumber: 13
+            }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
+                ref: sectionRef,
                 style: {
                     display: 'grid',
                     gridTemplateColumns: '280px 1fr',
@@ -2696,7 +2777,7 @@ function AgmBudgetPage() {
                                 children: "Community"
                             }, void 0, false, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 487,
+                                lineNumber: 560,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -2723,7 +2804,7 @@ function AgmBudgetPage() {
                                         children: "All"
                                     }, void 0, false, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 506,
+                                        lineNumber: 579,
                                         columnNumber: 25
                                     }, this),
                                     allCommunities.map((c)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -2731,21 +2812,21 @@ function AgmBudgetPage() {
                                             children: c
                                         }, c, false, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 508,
+                                            lineNumber: 581,
                                             columnNumber: 29
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 488,
+                                lineNumber: 561,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 style: {
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    gap: 10,
-                                    marginTop: 0
+                                    gap: 5,
+                                    marginTop: 5
                                 },
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SmallCard, {
@@ -2753,7 +2834,7 @@ function AgmBudgetPage() {
                                         value: fmt(totals.rev)
                                     }, void 0, false, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 516,
+                                        lineNumber: 589,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SmallCard, {
@@ -2761,7 +2842,7 @@ function AgmBudgetPage() {
                                         value: fmt(totals.exp)
                                     }, void 0, false, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 517,
+                                        lineNumber: 590,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SmallCard, {
@@ -2769,19 +2850,19 @@ function AgmBudgetPage() {
                                         value: fmt(totals.net)
                                     }, void 0, false, {
                                         fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 518,
+                                        lineNumber: 591,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                lineNumber: 515,
+                                lineNumber: 588,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 486,
+                        lineNumber: 559,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2795,89 +2876,17 @@ function AgmBudgetPage() {
                                 maxWidth: RIGHT_PANEL_MAX,
                                 display: 'flex',
                                 flexDirection: 'column',
-                                gap: 18,
-                                marginTop: 0,
-                                position: 'relative',
-                                paddingTop: 32
+                                gap: 10,
+                                marginTop: 0
                             },
                             children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    style: {
-                                        display: 'flex',
-                                        justifyContent: 'flex-end',
-                                        width: '100%',
-                                        position: 'absolute',
-                                        top: 0,
-                                        right: 0,
-                                        paddingRight: 8,
-                                        paddingTop: 4
-                                    },
-                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
-                                        type: "button",
-                                        onClick: ()=>setAiOpen((v)=>!v),
-                                        "aria-pressed": aiOpen,
-                                        "aria-label": "Open AI insights",
-                                        title: "Open AI insights",
-                                        style: {
-                                            appearance: 'none',
-                                            border: '1px solid #e5e7eb',
-                                            background: aiOpen ? '#111827' : '#fff',
-                                            color: aiOpen ? '#fff' : '#111827',
-                                            borderRadius: 8,
-                                            padding: '6px 10px',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: 8,
-                                            cursor: 'pointer'
-                                        },
-                                        children: [
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("svg", {
-                                                width: "16",
-                                                height: "16",
-                                                fill: "currentColor",
-                                                viewBox: "0 0 24 24",
-                                                "aria-hidden": "true",
-                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                                    d: "M5 3l1.5 3.5L10 8l-3.5 1.5L5 13l-1.5-3.5L0 8l3.5-1.5L5 3zm11 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 569,
-                                                    columnNumber: 37
-                                                }, this)
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/agm/budget/page.tsx",
-                                                lineNumber: 568,
-                                                columnNumber: 33
-                                            }, this),
-                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                style: {
-                                                    fontSize: 14,
-                                                    fontWeight: 600
-                                                },
-                                                children: "AI"
-                                            }, void 0, false, {
-                                                fileName: "[project]/app/agm/budget/page.tsx",
-                                                lineNumber: 571,
-                                                columnNumber: 33
-                                            }, this)
-                                        ]
-                                    }, void 0, true, {
-                                        fileName: "[project]/app/agm/budget/page.tsx",
-                                        lineNumber: 549,
-                                        columnNumber: 29
-                                    }, this)
-                                }, void 0, false, {
-                                    fileName: "[project]/app/agm/budget/page.tsx",
-                                    lineNumber: 537,
-                                    columnNumber: 25
-                                }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Label, {
                                             children: "Revenue Category Totals"
                                         }, void 0, false, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 577,
+                                            lineNumber: 609,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2895,7 +2904,7 @@ function AgmBudgetPage() {
                                                     width: CATEGORY_WIDTH
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 579,
+                                                    lineNumber: 611,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2903,7 +2912,7 @@ function AgmBudgetPage() {
                                                         border: '1px solid #e5e5e5',
                                                         borderRadius: 8,
                                                         padding: '8px 10px',
-                                                        textAlign: 'right',
+                                                        textAlign: 'left',
                                                         background: '#fff',
                                                         fontWeight: 600,
                                                         width: 120
@@ -2911,19 +2920,19 @@ function AgmBudgetPage() {
                                                     children: fmt(revCatTotal)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 586,
+                                                    lineNumber: 618,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 578,
+                                            lineNumber: 610,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                    lineNumber: 576,
+                                    lineNumber: 608,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2932,7 +2941,7 @@ function AgmBudgetPage() {
                                             children: "Expense Category Totals"
                                         }, void 0, false, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 604,
+                                            lineNumber: 636,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2950,7 +2959,7 @@ function AgmBudgetPage() {
                                                     width: CATEGORY_WIDTH
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 606,
+                                                    lineNumber: 638,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2958,7 +2967,7 @@ function AgmBudgetPage() {
                                                         border: '1px solid #e5e5e5',
                                                         borderRadius: 8,
                                                         padding: '8px 10px',
-                                                        textAlign: 'right',
+                                                        textAlign: 'left',
                                                         background: '#fff',
                                                         fontWeight: 600,
                                                         width: 120
@@ -2966,19 +2975,19 @@ function AgmBudgetPage() {
                                                     children: fmt(expCatTotal)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 613,
+                                                    lineNumber: 645,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 605,
+                                            lineNumber: 637,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                    lineNumber: 603,
+                                    lineNumber: 635,
                                     columnNumber: 25
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2995,7 +3004,7 @@ function AgmBudgetPage() {
                                                     children: "Year"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 632,
+                                                    lineNumber: 664,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3009,7 +3018,7 @@ function AgmBudgetPage() {
                                                             return next;
                                                         }),
                                                     style: {
-                                                        width: 120,
+                                                        width: COMPACT,
                                                         padding: '8px 10px',
                                                         borderRadius: 8,
                                                         border: '1px solid #e5e5e5',
@@ -3021,7 +3030,7 @@ function AgmBudgetPage() {
                                                             children: "All"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                                            lineNumber: 650,
+                                                            lineNumber: 682,
                                                             columnNumber: 37
                                                         }, this),
                                                         allYears.map((y)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3029,19 +3038,19 @@ function AgmBudgetPage() {
                                                                 children: y
                                                             }, y, false, {
                                                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                                                lineNumber: 652,
+                                                                lineNumber: 684,
                                                                 columnNumber: 41
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 633,
+                                                    lineNumber: 665,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 631,
+                                            lineNumber: 663,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3050,7 +3059,7 @@ function AgmBudgetPage() {
                                                     children: "Quarter"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 660,
+                                                    lineNumber: 692,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3064,7 +3073,7 @@ function AgmBudgetPage() {
                                                             return next;
                                                         }),
                                                     style: {
-                                                        width: 120,
+                                                        width: COMPACT,
                                                         padding: '8px 10px',
                                                         borderRadius: 8,
                                                         border: '1px solid #e5e5e5',
@@ -3076,7 +3085,7 @@ function AgmBudgetPage() {
                                                             children: "All"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                                            lineNumber: 678,
+                                                            lineNumber: 710,
                                                             columnNumber: 37
                                                         }, this),
                                                         allQuarters.map((q)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3084,19 +3093,19 @@ function AgmBudgetPage() {
                                                                 children: q
                                                             }, q, false, {
                                                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                                                lineNumber: 680,
+                                                                lineNumber: 712,
                                                                 columnNumber: 41
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 661,
+                                                    lineNumber: 693,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 659,
+                                            lineNumber: 691,
                                             columnNumber: 29
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3105,7 +3114,7 @@ function AgmBudgetPage() {
                                                     children: "Month"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 688,
+                                                    lineNumber: 720,
                                                     columnNumber: 33
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -3119,7 +3128,7 @@ function AgmBudgetPage() {
                                                             return next;
                                                         }),
                                                     style: {
-                                                        width: 120,
+                                                        width: COMPACT,
                                                         padding: '8px 10px',
                                                         borderRadius: 8,
                                                         border: '1px solid #e5e5e5',
@@ -3131,7 +3140,7 @@ function AgmBudgetPage() {
                                                             children: "All"
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                                            lineNumber: 706,
+                                                            lineNumber: 738,
                                                             columnNumber: 37
                                                         }, this),
                                                         allMonths.map((m)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3139,42 +3148,42 @@ function AgmBudgetPage() {
                                                                 children: m
                                                             }, m, false, {
                                                                 fileName: "[project]/app/agm/budget/page.tsx",
-                                                                lineNumber: 708,
+                                                                lineNumber: 740,
                                                                 columnNumber: 41
                                                             }, this))
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                                    lineNumber: 689,
+                                                    lineNumber: 721,
                                                     columnNumber: 33
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/agm/budget/page.tsx",
-                                            lineNumber: 687,
+                                            lineNumber: 719,
                                             columnNumber: 29
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/agm/budget/page.tsx",
-                                    lineNumber: 630,
+                                    lineNumber: 662,
                                     columnNumber: 25
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/agm/budget/page.tsx",
-                            lineNumber: 524,
+                            lineNumber: 597,
                             columnNumber: 21
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 523,
+                        lineNumber: 596,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 476,
+                lineNumber: 548,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3182,11 +3191,11 @@ function AgmBudgetPage() {
                 style: {
                     marginTop: -10
                 },
-                className: "jsx-a8a0ba75cb7ee073",
+                className: "jsx-97e92f94a89fd2f3",
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$styled$2d$jsx$2f$style$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                        id: "a8a0ba75cb7ee073",
-                        children: "#grid-wrapper.jsx-a8a0ba75cb7ee073 .grid-toolbar.jsx-a8a0ba75cb7ee073{display:none!important}"
+                        id: "97e92f94a89fd2f3",
+                        children: "#grid-wrapper.jsx-97e92f94a89fd2f3 .grid-toolbar.jsx-97e92f94a89fd2f3{display:none!important}"
                     }, void 0, false, void 0, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$BudgetGrid$2e$tanstack$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
                         rows: rows,
@@ -3206,13 +3215,13 @@ function AgmBudgetPage() {
                         onGroupingAfterRender: handleGroupingAfterRender
                     }, void 0, false, {
                         fileName: "[project]/app/agm/budget/page.tsx",
-                        lineNumber: 727,
+                        lineNumber: 759,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 720,
+                lineNumber: 752,
                 columnNumber: 13
             }, this),
             loading && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3222,7 +3231,7 @@ function AgmBudgetPage() {
                 children: "Loading data…"
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 745,
+                lineNumber: 777,
                 columnNumber: 25
             }, this),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3232,7 +3241,7 @@ function AgmBudgetPage() {
                 children: error
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 746,
+                lineNumber: 778,
                 columnNumber: 23
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$AIInsightsPanel$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -3246,17 +3255,17 @@ function AgmBudgetPage() {
                 totals: aiTotals
             }, void 0, false, {
                 fileName: "[project]/app/agm/budget/page.tsx",
-                lineNumber: 749,
+                lineNumber: 781,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/agm/budget/page.tsx",
-        lineNumber: 474,
+        lineNumber: 509,
         columnNumber: 9
     }, this);
 }
-_s1(AgmBudgetPage, "C9KphcpNW0dkVFf8o6JofZa945E=");
+_s1(AgmBudgetPage, "JbOfgb57pMSV9qB3I7T6Fl6Hzms=");
 _c3 = AgmBudgetPage;
 var _c, _c1, _c2, _c3;
 __turbopack_context__.k.register(_c, "Label");

@@ -15,9 +15,9 @@ import {
 } from '../../../components/grid/columns';
 
 /* ============================================================================
-   DATA LOADER (PUBLIC -> served at /budgetLines.json)
+   DATA LOADER
    ============================================================================ */
-const DATA_URL = '/budgetLines.json' as const;
+const DATA_URL = '/budgetLines.json';
 
 async function loadRows(): Promise<BudgetRow[]> {
     const res = await fetch(DATA_URL, { cache: 'no-store' });
@@ -32,7 +32,7 @@ async function loadRows(): Promise<BudgetRow[]> {
         ...r,
         community: String((r as any).community ?? ''),
         category: String((r as any).category ?? ''),
-        subCategory: String((r as any).subCategory ?? ''), // normalize
+        subCategory: String((r as any).subCategory ?? ''),
         period: String((r as any).period ?? ''),
         type: String((r as any).type ?? ''),
         amount: Number((r as any).amount ?? 0),
@@ -40,10 +40,12 @@ async function loadRows(): Promise<BudgetRow[]> {
 }
 
 /* ============================================================================
-   Tiny UI helpers
+   UI HELPERS
    ============================================================================ */
 const Label = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ fontSize: 12, color: '#6b7a8a', fontWeight: 600, marginBottom: 4 }}>{children}</div>
+    <div style={{ fontSize: 12, color: '#6b7a8a', fontWeight: 600, marginBottom: 4 }}>
+        {children}
+    </div>
 );
 
 const SmallCard = ({ title, value }: { title: string; value: string }) => (
@@ -65,7 +67,7 @@ const SmallCard = ({ title, value }: { title: string; value: string }) => (
 );
 
 /* ============================================================================
-   GROUPED MULTI-SELECT (Option C) — safe for Next.js hydration
+   MULTI-SELECT GROUPED
    ============================================================================ */
 type GroupedOptions = Array<{ group: string; items: string[] }>;
 
@@ -136,8 +138,6 @@ function MultiSelectGrouped({
                     background: '#fff',
                     textAlign: 'left',
                 }}
-                aria-haspopup="listbox"
-                aria-expanded={open}
             >
                 {summary}
             </button>
@@ -163,10 +163,15 @@ function MultiSelectGrouped({
                     {groups.map(({ group, items }) => {
                         const allSelected = items.every((i) => selected.has(i));
                         const someSelected = items.some((i) => selected.has(i));
+
                         return (
                             <div
                                 key={group}
-                                style={{ paddingBottom: 10, marginBottom: 10, borderBottom: '1px solid #f0f3f6' }}
+                                style={{
+                                    paddingBottom: 10,
+                                    marginBottom: 10,
+                                    borderBottom: '1px solid #f0f3f6',
+                                }}
                             >
                                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                                     <input
@@ -177,13 +182,27 @@ function MultiSelectGrouped({
                                         }}
                                         onChange={() => toggleGroup(items)}
                                     />
-                                    <span style={{ fontWeight: 700, fontSize: 12, color: '#334155' }}>{group}</span>
+                                    <span style={{ fontWeight: 700, fontSize: 12, color: '#334155' }}>
+                                        {group}
+                                    </span>
                                 </label>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
                                     {items.map((item) => (
-                                        <label key={item} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}>
-                                            <input type="checkbox" checked={selected.has(item)} onChange={() => toggleItem(item)} />
+                                        <label
+                                            key={item}
+                                            style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: 6,
+                                                fontSize: 13,
+                                            }}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={selected.has(item)}
+                                                onChange={() => toggleItem(item)}
+                                            />
                                             {item}
                                         </label>
                                     ))}
@@ -198,9 +217,10 @@ function MultiSelectGrouped({
 }
 
 /* ============================================================================
-   PAGE COMPONENT
+   PAGE
    ============================================================================ */
 export default function AgmBudgetPage() {
+
     const [rows, setRows] = React.useState<BudgetRow[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
@@ -220,16 +240,18 @@ export default function AgmBudgetPage() {
                 if (alive) setLoading(false);
             }
         })();
+
         return () => {
             alive = false;
         };
     }, []);
 
     /* --------------------------------------------------------------------------
-       SHARED FILTER STATE (for Community / Year / Quarter / Month)
+       FILTER STATE
        -------------------------------------------------------------------------- */
     const [filters, setFilters] = React.useState<ColumnFiltersState>([]);
     const get = (id: string) => filters.find((f) => f.id === id)?.value ?? '';
+
     const selected = {
         community: get('community') as string,
         year: (get('year') as number) || '',
@@ -240,26 +262,29 @@ export default function AgmBudgetPage() {
     };
 
     /* --------------------------------------------------------------------------
-       OPTIONS (derived from data)
+       OPTIONS
        -------------------------------------------------------------------------- */
     const allCommunities = React.useMemo(
         () => Array.from(new Set(rows.map((r) => r.community).filter(Boolean))).sort(),
         [rows]
     );
+
     const allYears = React.useMemo(
-        () => Array.from(new Set(rows.map((r) => deriveYear(r.period)).filter(Boolean))).sort() as number[],
+        () =>
+            Array.from(new Set(rows.map((r) => deriveYear(r.period)).filter(Boolean))).sort() as number[],
         [rows]
     );
+
     const allQuarters = React.useMemo(
         () => Array.from(new Set(rows.map((r) => deriveQuarterLabel(r.period)).filter(Boolean))).sort(),
         [rows]
     );
+
     const allMonths = React.useMemo(
         () => Array.from(new Set(rows.map((r) => deriveMonthLabel(r.period)).filter(Boolean))).sort(),
         [rows]
     );
 
-    // Revenue subcategories (for the Revenue totals picker)
     const revenueSubcats = React.useMemo(
         () =>
             Array.from(
@@ -273,7 +298,6 @@ export default function AgmBudgetPage() {
         [rows]
     );
 
-    // EXPENSE GROUPING — Hybrid (A): use dash prefix if present, else use category (C)
     const expenseGroups = React.useMemo<GroupedOptions>(() => {
         const map = new Map<string, Set<string>>();
 
@@ -286,7 +310,6 @@ export default function AgmBudgetPage() {
                 const dashIdx = sub.indexOf('-');
                 const byPrefix = dashIdx > 0 ? sub.slice(0, dashIdx).trim() : '';
                 const fallbackCat = String(r.category ?? '').trim() || (t === 'CapEx' ? 'CapEx' : 'Expense');
-
                 const group = byPrefix || fallbackCat;
 
                 if (!map.has(group)) map.set(group, new Set<string>());
@@ -305,26 +328,22 @@ export default function AgmBudgetPage() {
     );
 
     /* --------------------------------------------------------------------------
-       FILTERED ROWS for cards & totals (respects Community/Year/Qtr/Month)
+       FILTERED ROWS
        -------------------------------------------------------------------------- */
     const filteredRows = React.useMemo(() => {
         return rows.filter((r) => {
             if (selected.community && r.community !== selected.community) return false;
-            const y = deriveYear(r.period);
-            if (selected.year && y !== selected.year) return false;
-            const q = deriveQuarterLabel(r.period);
-            if (selected.quarter && q !== selected.quarter) return false;
-            const m = deriveMonthLabel(r.period);
-            if (selected.month && m !== selected.month) return false;
-            const bt = mapBudgetType(r.type);
-            if (selected.budgetType && bt !== selected.budgetType) return false;
+            if (selected.year && deriveYear(r.period) !== selected.year) return false;
+            if (selected.quarter && deriveQuarterLabel(r.period) !== selected.quarter) return false;
+            if (selected.month && deriveMonthLabel(r.period) !== selected.month) return false;
+            if (selected.budgetType && mapBudgetType(r.type) !== selected.budgetType) return false;
             if (selected.category && r.category !== selected.category) return false;
             return true;
         });
     }, [rows, selected]);
 
     /* --------------------------------------------------------------------------
-       KPI CARDS (Revenue, Expense, Net)
+       KPI TOTALS
        -------------------------------------------------------------------------- */
     const totals = React.useMemo(() => {
         let rev = 0,
@@ -346,7 +365,7 @@ export default function AgmBudgetPage() {
         }).format(n || 0);
 
     /* --------------------------------------------------------------------------
-       CATEGORY TOTAL SELECTORS — grouped multi-select
+       CATEGORY TOTAL SELECTORS
        -------------------------------------------------------------------------- */
     const [revSel, setRevSel] = React.useState<Set<string>>(new Set());
     const [expSel, setExpSel] = React.useState<Set<string>>(new Set());
@@ -374,7 +393,7 @@ export default function AgmBudgetPage() {
     const [aiOpen, setAiOpen] = React.useState(false);
     const [groupingKeys, setGroupingKeys] = React.useState<string[]>([]);
 
-    // Normalize rows for AI types: ensure shapes match AIBudgetRow exactly
+    // Normalize rows for AI types
     const aiRows = React.useMemo<AIBudgetRow[]>(
         () =>
             rows.map((r) => ({
@@ -384,10 +403,10 @@ export default function AgmBudgetPage() {
                 budgetMethod: (r as any).budgetMethod ?? undefined,
                 driver: (r as any).driver ?? undefined,
                 driverTag: (r as any).driverTag ?? undefined,
-                glCode: (r as any).glCode ?? null, // AI type allows null
+                glCode: (r as any).glCode ?? null,
                 period: String(r.period ?? ''),
                 type: String(r.type ?? ''),
-                amount: (r as any).amount ?? 0, // normalize to number for AI
+                amount: (r as any).amount ?? 0,
             })),
         [rows]
     );
@@ -437,8 +456,7 @@ export default function AgmBudgetPage() {
         };
     }, [filteredRows]);
 
-    // --- SAFETY: Only allow setState after the page has mounted ---
-    // Use layout effect to ensure the guard is set before child effects fire
+    // --- SAFETY: Only allow setState after the page has mounted (Strict Mode friendly) ---
     const mountedRef = React.useRef(false);
     React.useLayoutEffect(() => {
         mountedRef.current = true;
@@ -449,11 +467,8 @@ export default function AgmBudgetPage() {
 
     const handleGroupingAfterRender = React.useCallback((keys: string[]) => {
         if (!mountedRef.current) return;
-
         requestAnimationFrame(() => {
-            if (mountedRef.current) {
-                setGroupingKeys(keys);
-            }
+            if (mountedRef.current) setGroupingKeys(keys);
         });
     }, []);
 
@@ -466,14 +481,72 @@ export default function AgmBudgetPage() {
         []
     );
 
-    const CATEGORY_WIDTH = 420;
-    const RIGHT_PANEL_MAX = 540;
-    const COMPACT = 120;
+    // --- FLOATING AI BUTTON (Option C-2) ---
+    // Position: top-right of viewport, aligned with the top of the content (the section below)
+    const sectionRef = React.useRef<HTMLElement | null>(null);
+    const [fabTop, setFabTop] = React.useState<number>(96); // sensible default under the header
+
+    React.useLayoutEffect(() => {
+        const measure = () => {
+            if (!sectionRef.current) return;
+            const rect = sectionRef.current.getBoundingClientRect();
+            // Align to the top of the content area; clamp to minimum to avoid overlapping header
+            const nextTop = Math.max(72, Math.round(rect.top));
+            setFabTop(nextTop);
+        };
+
+        // Measure after mount and on resize (layout changes)
+        measure();
+        window.addEventListener('resize', measure);
+        return () => window.removeEventListener('resize', measure);
+    }, []);
+
+    const CATEGORY_WIDTH = 300;
+    const RIGHT_PANEL_MAX = 400;
+    const COMPACT = 92;
 
     return (
-        <main style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {/* ROW 1: Community | Right column (AI button + Revenue/Expense totals + Y/Q/M) */}
+        <main style={{ padding: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {/* FLOATING AI BUTTON — independent of layout (fixed position) */}
+            <div
+                style={{
+                    position: 'fixed',
+                    right: 24,
+                    top: fabTop,
+                    zIndex: 50,
+                    pointerEvents: 'auto',
+                }}
+            >
+                <button
+                    type="button"
+                    onClick={() => setAiOpen((v) => !v)}
+                    aria-pressed={aiOpen}
+                    aria-label="Open AI insights"
+                    title="Open AI insights"
+                    style={{
+                        appearance: 'none',
+                        border: '1px solid #e5e7eb',
+                        background: aiOpen ? '#111827' : '#fff',
+                        color: aiOpen ? '#fff' : '#111827',
+                        borderRadius: 8,
+                        padding: '6px 10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        cursor: 'pointer',
+                        boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+                    }}
+                >
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M5 3l1.5 3.5L10 8l-3.5 1.5L5 13l-1.5-3.5L0 8l3.5-1.5L5 3zm11 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" />
+                    </svg>
+                    <span style={{ fontSize: 14, fontWeight: 600 }}>AI</span>
+                </button>
+            </div>
+
+            {/* ROW 1: Community | Right column (Category totals + Y/Q/M) */}
             <section
+                ref={sectionRef as any}
                 style={{
                     display: 'grid',
                     gridTemplateColumns: '280px 1fr',
@@ -512,14 +585,14 @@ export default function AgmBudgetPage() {
                     </select>
 
                     {/* KPI Cards */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 5 }}>
                         <SmallCard title="TOTAL REVENUE" value={fmt(totals.rev)} />
                         <SmallCard title="TOTAL EXPENSE" value={fmt(totals.exp)} />
                         <SmallCard title="NET" value={fmt(totals.net)} />
                     </div>
                 </div>
 
-                {/* RIGHT: AI button (pinned), category totals, and Y/Q/M */}
+                {/* RIGHT: Category totals and Y/Q/M (AI button moved OUT and floats) */}
                 <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                     <div
                         style={{
@@ -527,51 +600,10 @@ export default function AgmBudgetPage() {
                             maxWidth: RIGHT_PANEL_MAX,
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: 18,
+                            gap: 10,
                             marginTop: 0,
-                            position: 'relative', // pin AI button relative to this container
-                            paddingTop: 32, // space for the pinned button
                         }}
                     >
-                        {/* AI button pinned to far-right */}
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'flex-end',
-                                width: '100%',
-                                position: 'absolute',
-                                top: 0,
-                                right: 0,
-                                paddingRight: 8,
-                                paddingTop: 4,
-                            }}
-                        >
-                            <button
-                                type="button"
-                                onClick={() => setAiOpen((v) => !v)}
-                                aria-pressed={aiOpen}
-                                aria-label="Open AI insights"
-                                title="Open AI insights"
-                                style={{
-                                    appearance: 'none',
-                                    border: '1px solid #e5e7eb',
-                                    background: aiOpen ? '#111827' : '#fff',
-                                    color: aiOpen ? '#fff' : '#111827',
-                                    borderRadius: 8,
-                                    padding: '6px 10px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: 8,
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                    <path d="M5 3l1.5 3.5L10 8l-3.5 1.5L5 13l-1.5-3.5L0 8l3.5-1.5L5 3zm11 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" />
-                                </svg>
-                                <span style={{ fontSize: 14, fontWeight: 600 }}>AI</span>
-                            </button>
-                        </div>
-
                         {/* Revenue Category Totals */}
                         <div>
                             <Label>Revenue Category Totals</Label>
@@ -588,7 +620,7 @@ export default function AgmBudgetPage() {
                                         border: '1px solid #e5e5e5',
                                         borderRadius: 8,
                                         padding: '8px 10px',
-                                        textAlign: 'right',
+                                        textAlign: 'left',
                                         background: '#fff',
                                         fontWeight: 600,
                                         width: 120,
@@ -615,7 +647,7 @@ export default function AgmBudgetPage() {
                                         border: '1px solid #e5e5e5',
                                         borderRadius: 8,
                                         padding: '8px 10px',
-                                        textAlign: 'right',
+                                        textAlign: 'left',
                                         background: '#fff',
                                         fontWeight: 600,
                                         width: 120,
@@ -640,7 +672,7 @@ export default function AgmBudgetPage() {
                                         })
                                     }
                                     style={{
-                                        width: 120,
+                                        width: COMPACT,
                                         padding: '8px 10px',
                                         borderRadius: 8,
                                         border: '1px solid #e5e5e5',
@@ -668,7 +700,7 @@ export default function AgmBudgetPage() {
                                         })
                                     }
                                     style={{
-                                        width: 120,
+                                        width: COMPACT,
                                         padding: '8px 10px',
                                         borderRadius: 8,
                                         border: '1px solid #e5e5e5',
@@ -696,7 +728,7 @@ export default function AgmBudgetPage() {
                                         })
                                     }
                                     style={{
-                                        width: 120,
+                                        width: COMPACT,
                                         padding: '8px 10px',
                                         borderRadius: 8,
                                         border: '1px solid #e5e5e5',
@@ -719,10 +751,10 @@ export default function AgmBudgetPage() {
             {/* GRID (toolbar row hidden via CSS to keep space for future icons) */}
             <div id="grid-wrapper" style={{ marginTop: -10 }}>
                 <style jsx>{`
-          #grid-wrapper .grid-toolbar {
-            display: none !important;
-          }
-        `}</style>
+                    #grid-wrapper .grid-toolbar {
+                        display: none !important;
+                    }
+                `}</style>
 
                 <BudgetGrid
                     rows={rows}
