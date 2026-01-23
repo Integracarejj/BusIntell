@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/agm/budget/page": "app/agm/budget/page.js",
+  "/agm/forecast/page": "app/agm/forecast/page.js",
+  "/agm/insights/page": "app/agm/insights/page.js",
+  "/agm/page": "app/agm/page.js",
+  "/agm/rollups/page": "app/agm/rollups/page.js",
+  "/exec/insights/page": "app/exec/insights/page.js",
+  "/exec/page": "app/exec/page.js",
+  "/exec/trends/page": "app/exec/trends/page.js",
+  "/exec/variance/page": "app/exec/variance/page.js",
+  "/page": "app/page.js"
+}
