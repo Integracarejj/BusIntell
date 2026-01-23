@@ -29,7 +29,7 @@ async function loadRows(): Promise<BudgetRow[]> {
     }
 
     return json.map((r): BudgetRow => ({
-        ...r,
+        ...(r as any),
         community: String((r as any).community ?? ''),
         category: String((r as any).category ?? ''),
         subCategory: String((r as any).subCategory ?? ''),
@@ -43,9 +43,7 @@ async function loadRows(): Promise<BudgetRow[]> {
    UI HELPERS
    ============================================================================ */
 const Label = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ fontSize: 12, color: '#6b7a8a', fontWeight: 600, marginBottom: 4 }}>
-        {children}
-    </div>
+    <div style={{ fontSize: 12, color: '#6b7a8a', fontWeight: 600, marginBottom: 4 }}>{children}</div>
 );
 
 const SmallCard = ({ title, value }: { title: string; value: string }) => (
@@ -59,6 +57,7 @@ const SmallCard = ({ title, value }: { title: string; value: string }) => (
             flexDirection: 'column',
             gap: 4,
             minHeight: 64,
+            minWidth: 170,
         }}
     >
         <div style={{ fontSize: 11, color: '#7a8a99' }}>{title}</div>
@@ -147,7 +146,7 @@ function MultiSelectGrouped({
                     role="listbox"
                     style={{
                         position: 'absolute',
-                        zIndex: 50,
+                        zIndex: 80,
                         top: 'calc(100% + 6px)',
                         left: 0,
                         width: Math.max(260, width),
@@ -182,9 +181,7 @@ function MultiSelectGrouped({
                                         }}
                                         onChange={() => toggleGroup(items)}
                                     />
-                                    <span style={{ fontWeight: 700, fontSize: 12, color: '#334155' }}>
-                                        {group}
-                                    </span>
+                                    <span style={{ fontWeight: 700, fontSize: 12, color: '#334155' }}>{group}</span>
                                 </label>
 
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4 }}>
@@ -198,11 +195,7 @@ function MultiSelectGrouped({
                                                 fontSize: 13,
                                             }}
                                         >
-                                            <input
-                                                type="checkbox"
-                                                checked={selected.has(item)}
-                                                onChange={() => toggleItem(item)}
-                                            />
+                                            <input type="checkbox" checked={selected.has(item)} onChange={() => toggleItem(item)} />
                                             {item}
                                         </label>
                                     ))}
@@ -220,7 +213,6 @@ function MultiSelectGrouped({
    PAGE
    ============================================================================ */
 export default function AgmBudgetPage() {
-
     const [rows, setRows] = React.useState<BudgetRow[]>([]);
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
@@ -270,8 +262,7 @@ export default function AgmBudgetPage() {
     );
 
     const allYears = React.useMemo(
-        () =>
-            Array.from(new Set(rows.map((r) => deriveYear(r.period)).filter(Boolean))).sort() as number[],
+        () => Array.from(new Set(rows.map((r) => deriveYear(r.period)).filter(Boolean))).sort() as number[],
         [rows]
     );
 
@@ -393,7 +384,6 @@ export default function AgmBudgetPage() {
     const [aiOpen, setAiOpen] = React.useState(false);
     const [groupingKeys, setGroupingKeys] = React.useState<string[]>([]);
 
-    // Normalize rows for AI types
     const aiRows = React.useMemo<AIBudgetRow[]>(
         () =>
             rows.map((r) => ({
@@ -428,7 +418,6 @@ export default function AgmBudgetPage() {
         [filteredRows]
     );
 
-    // Build AI totals with correct shape
     const aiTotals: AITotals = React.useMemo(() => {
         const byCategory = new Map<string, number>();
         const byCommunity = new Map<string, number>();
@@ -472,7 +461,6 @@ export default function AgmBudgetPage() {
         });
     }, []);
 
-    // Guarded, setState-compatible signature to match BudgetGrid's expectation
     const handleFiltersChange = React.useCallback(
         (updater: ColumnFiltersState | ((old: ColumnFiltersState) => ColumnFiltersState)) => {
             if (!mountedRef.current) return;
@@ -481,185 +469,180 @@ export default function AgmBudgetPage() {
         []
     );
 
-    // --- FLOATING AI BUTTON (Option C-2) ---
-    // Position: top-right of viewport, aligned with the top of the content (the section below)
+    /* --------------------------------------------------------------------------
+       FULL-SCREEN GRID MODE
+       -------------------------------------------------------------------------- */
+    const [isFullScreen, setIsFullScreen] = React.useState(false);
+    const toggleFullScreen = React.useCallback(() => setIsFullScreen((v) => !v), []);
+
+    // Measure top offset (under Header)
     const sectionRef = React.useRef<HTMLElement | null>(null);
-    const [fabTop, setFabTop] = React.useState<number>(96); // sensible default under the header
+    const [contentTop, setContentTop] = React.useState<number>(96);
 
     React.useLayoutEffect(() => {
         const measure = () => {
             if (!sectionRef.current) return;
             const rect = sectionRef.current.getBoundingClientRect();
-            // Align to the top of the content area; clamp to minimum to avoid overlapping header
-            const nextTop = Math.max(72, Math.round(rect.top));
-            setFabTop(nextTop);
+            const nextTop = Math.max(64, Math.round(rect.top));
+            setContentTop(nextTop);
         };
-
-        // Measure after mount and on resize (layout changes)
         measure();
         window.addEventListener('resize', measure);
         return () => window.removeEventListener('resize', measure);
     }, []);
 
-    const CATEGORY_WIDTH = 300;
-    const RIGHT_PANEL_MAX = 400;
+    // Measure sidebar width so fullscreen fixed layers don't cover it
+    const [sidebarW, setSidebarW] = React.useState(0);
+    React.useLayoutEffect(() => {
+        const aside = document.querySelector('aside') as HTMLElement | null;
+        if (!aside) {
+            setSidebarW(0);
+            return;
+        }
+
+        const measure = () => setSidebarW(Math.round(aside.getBoundingClientRect().width));
+
+        measure();
+        const ro = new ResizeObserver(() => measure());
+        ro.observe(aside);
+        window.addEventListener('resize', measure);
+
+        return () => {
+            ro.disconnect();
+            window.removeEventListener('resize', measure);
+        };
+    }, []);
+
+    // Measure dock height so the grid starts below it
+    const dockRef = React.useRef<HTMLDivElement | null>(null);
+    const [dockH, setDockH] = React.useState(0);
+
+    React.useLayoutEffect(() => {
+        const measureDock = () => {
+            if (!dockRef.current) return setDockH(0);
+            setDockH(Math.round(dockRef.current.getBoundingClientRect().height));
+        };
+        measureDock();
+        window.addEventListener('resize', measureDock);
+        return () => window.removeEventListener('resize', measureDock);
+    }, [isFullScreen, selected.community, selected.year, selected.quarter, selected.month, revSel, expSel]);
+
+    const CATEGORY_WIDTH_NORMAL = 300;
+    const CATEGORY_WIDTH_FS = 360; // dropdown column width in fullscreen dock
+    const RIGHT_PANEL_MAX = 540;
     const COMPACT = 92;
 
-    return (
-        <main style={{ padding: 3, display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {/* FLOATING AI BUTTON — independent of layout (fixed position) */}
-            <div
+    const fsLeft = Math.max(16, sidebarW + 16);
+
+    // Toolbar right: AI + Fullscreen buttons
+    const toolbarRight = (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <button
+                type="button"
+                onClick={() => setAiOpen(true)}
+                aria-label="Open AI insights"
+                title="AI insights"
                 style={{
-                    position: 'fixed',
-                    right: 24,
-                    top: fabTop,
-                    zIndex: 50,
-                    pointerEvents: 'auto',
+                    appearance: 'none',
+                    border: '1px solid #0ea5e9',
+                    background: '#0ea5e9',
+                    color: '#fff',
+                    borderRadius: 8,
+                    padding: '6px 12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.10)',
                 }}
             >
-                <button
-                    type="button"
-                    onClick={() => setAiOpen((v) => !v)}
-                    aria-pressed={aiOpen}
-                    aria-label="Open AI insights"
-                    title="Open AI insights"
+                AI
+            </button>
+
+            <button
+                type="button"
+                onClick={toggleFullScreen}
+                aria-pressed={isFullScreen}
+                aria-label={isFullScreen ? 'Exit full-screen grid' : 'Enter full-screen grid'}
+                title={isFullScreen ? 'Exit full-screen' : 'Full-screen grid'}
+                style={{
+                    appearance: 'none',
+                    border: '1px solid #10b981',
+                    background: isFullScreen ? '#065f46' : '#10b981',
+                    color: '#fff',
+                    borderRadius: 8,
+                    padding: '6px 12px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 18px rgba(0,0,0,0.10)',
+                }}
+            >
+                {isFullScreen ? 'Exit Full Screen' : 'Full Screen'}
+            </button>
+        </div>
+    );
+
+    return (
+        <main style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {/* FULLSCREEN DOCK */}
+            {isFullScreen && (
+                <div
+                    ref={dockRef}
                     style={{
-                        appearance: 'none',
+                        position: 'fixed',
+                        left: fsLeft,
+                        right: 16,
+                        top: contentTop,
+                        zIndex: 55,
+                        background: '#ffffff',
                         border: '1px solid #e5e7eb',
-                        background: aiOpen ? '#111827' : '#fff',
-                        color: aiOpen ? '#fff' : '#111827',
-                        borderRadius: 8,
-                        padding: '6px 10px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        cursor: 'pointer',
-                        boxShadow: '0 6px 18px rgba(0,0,0,0.12)',
+                        borderRadius: 12,
+                        padding: '10px 12px',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10,
                     }}
                 >
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M5 3l1.5 3.5L10 8l-3.5 1.5L5 13l-1.5-3.5L0 8l3.5-1.5L5 3zm11 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5z" />
-                    </svg>
-                    <span style={{ fontSize: 14, fontWeight: 600 }}>AI</span>
-                </button>
-            </div>
-
-            {/* ROW 1: Community | Right column (Category totals + Y/Q/M) */}
-            <section
-                ref={sectionRef as any}
-                style={{
-                    display: 'grid',
-                    gridTemplateColumns: '280px 1fr',
-                    columnGap: 220,
-                    alignItems: 'start',
-                    marginBottom: 6,
-                }}
-            >
-                {/* LEFT: Community + KPI cards */}
-                <div>
-                    <Label>Community</Label>
-                    <select
-                        value={selected.community}
-                        onChange={(e) =>
-                            setFilters((prev: ColumnFiltersState) => {
-                                const v = e.target.value || '';
-                                const next = prev.filter((f) => f.id !== 'community');
-                                if (v) next.push({ id: 'community', value: v });
-                                return next;
-                            })
-                        }
-                        style={{
-                            width: '100%',
-                            padding: '8px 10px',
-                            borderRadius: 8,
-                            border: '1px solid #e5e5e5',
-                            background: '#fff',
-                        }}
-                    >
-                        <option value="">All</option>
-                        {allCommunities.map((c) => (
-                            <option key={c} value={c}>
-                                {c}
-                            </option>
-                        ))}
-                    </select>
-
-                    {/* KPI Cards */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 5, marginTop: 5 }}>
-                        <SmallCard title="TOTAL REVENUE" value={fmt(totals.rev)} />
-                        <SmallCard title="TOTAL EXPENSE" value={fmt(totals.exp)} />
-                        <SmallCard title="NET" value={fmt(totals.net)} />
-                    </div>
-                </div>
-
-                {/* RIGHT: Category totals and Y/Q/M (AI button moved OUT and floats) */}
-                <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                    {/* Row A: Quick filters + KPI cards */}
                     <div
                         style={{
-                            width: '100%',
-                            maxWidth: RIGHT_PANEL_MAX,
                             display: 'flex',
-                            flexDirection: 'column',
-                            gap: 10,
-                            marginTop: 0,
+                            alignItems: 'flex-end',
+                            justifyContent: 'space-between',
+                            gap: 14,
+                            flexWrap: 'wrap',
                         }}
                     >
-                        {/* Revenue Category Totals */}
-                        <div>
-                            <Label>Revenue Category Totals</Label>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'auto 120px', gap: 12 }}>
-                                <MultiSelectGrouped
-                                    placeholder="Pick category"
-                                    groups={revenueGroups}
-                                    selected={revSel}
-                                    onChange={setRevSel}
-                                    width={CATEGORY_WIDTH}
-                                />
-                                <div
-                                    style={{
-                                        border: '1px solid #e5e5e5',
-                                        borderRadius: 8,
-                                        padding: '8px 10px',
-                                        textAlign: 'left',
-                                        background: '#fff',
-                                        fontWeight: 600,
-                                        width: 120,
-                                    }}
-                                >
-                                    {fmt(revCatTotal)}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Expense Category Totals */}
-                        <div>
-                            <Label>Expense Category Totals</Label>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'auto 120px', gap: 12 }}>
-                                <MultiSelectGrouped
-                                    placeholder="Pick category"
-                                    groups={expenseGroups}
-                                    selected={expSel}
-                                    onChange={setExpSel}
-                                    width={CATEGORY_WIDTH}
-                                />
-                                <div
-                                    style={{
-                                        border: '1px solid #e5e5e5',
-                                        borderRadius: 8,
-                                        padding: '8px 10px',
-                                        textAlign: 'left',
-                                        background: '#fff',
-                                        fontWeight: 600,
-                                        width: 120,
-                                    }}
-                                >
-                                    {fmt(expCatTotal)}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Year / Quarter / Month */}
+                        {/* Quick filters */}
                         <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
+                            <div>
+                                <Label>Community</Label>
+                                <select
+                                    value={selected.community}
+                                    onChange={(e) =>
+                                        setFilters((prev: ColumnFiltersState) => {
+                                            const v = e.target.value || '';
+                                            const next = prev.filter((f) => f.id !== 'community');
+                                            if (v) next.push({ id: 'community', value: v });
+                                            return next;
+                                        })
+                                    }
+                                    style={{
+                                        width: 220,
+                                        padding: '8px 10px',
+                                        borderRadius: 8,
+                                        border: '1px solid #e5e5e5',
+                                        background: '#fff',
+                                    }}
+                                >
+                                    <option value="">All</option>
+                                    {allCommunities.map((c) => (
+                                        <option key={c} value={c}>
+                                            {c}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
                             <div>
                                 <Label>Year</Label>
                                 <select
@@ -744,18 +727,323 @@ export default function AgmBudgetPage() {
                                 </select>
                             </div>
                         </div>
+
+                        {/* KPI cards */}
+                        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                            <SmallCard title="TOTAL REVENUE" value={fmt(totals.rev)} />
+                            <SmallCard title="TOTAL EXPENSE" value={fmt(totals.exp)} />
+                            <SmallCard title="NET" value={fmt(totals.net)} />
+                        </div>
+                    </div>
+
+                    {/* Row B: Category Totals (tight $ box next to pickers) */}
+                    <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                        <div style={{ flex: '0 1 auto' }}>
+                            <Label>Revenue Category Totals</Label>
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: `${CATEGORY_WIDTH_FS}px 120px`,
+                                    gap: 10,
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <MultiSelectGrouped
+                                    placeholder="Pick category"
+                                    groups={revenueGroups}
+                                    selected={revSel}
+                                    onChange={setRevSel}
+                                    width={CATEGORY_WIDTH_FS}
+                                />
+                                <div
+                                    style={{
+                                        border: '1px solid #e5e5e5',
+                                        borderRadius: 8,
+                                        padding: '8px 10px',
+                                        textAlign: 'left',
+                                        background: '#fff',
+                                        fontWeight: 700,
+                                        width: 120,
+                                    }}
+                                >
+                                    {fmt(revCatTotal)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style={{ flex: '0 1 auto' }}>
+                            <Label>Expense Category Totals</Label>
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: `${CATEGORY_WIDTH_FS}px 120px`,
+                                    gap: 10,
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <MultiSelectGrouped
+                                    placeholder="Pick category"
+                                    groups={expenseGroups}
+                                    selected={expSel}
+                                    onChange={setExpSel}
+                                    width={CATEGORY_WIDTH_FS}
+                                />
+                                <div
+                                    style={{
+                                        border: '1px solid #e5e5e5',
+                                        borderRadius: 8,
+                                        padding: '8px 10px',
+                                        textAlign: 'left',
+                                        background: '#fff',
+                                        fontWeight: 700,
+                                        width: 120,
+                                    }}
+                                >
+                                    {fmt(expCatTotal)}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </section>
+            )}
 
-            {/* GRID (toolbar row hidden via CSS to keep space for future icons) */}
-            <div id="grid-wrapper" style={{ marginTop: -10 }}>
-                <style jsx>{`
-                    #grid-wrapper .grid-toolbar {
-                        display: none !important;
-                    }
-                `}</style>
+            {/* NORMAL (non-fullscreen) layout above the grid */}
+            {!isFullScreen && (
+                <section
+                    ref={sectionRef as any}
+                    style={{
+                        display: 'grid',
+                        gridTemplateColumns: '280px 1fr',
+                        columnGap: 40, // 🔥 reduced from 220
+                        alignItems: 'start',
+                        marginBottom: 4,
+                    }}
+                >
+                    {/* LEFT: Community + KPI cards */}
+                    <div>
+                        <Label>Community</Label>
+                        <select
+                            value={selected.community}
+                            onChange={(e) =>
+                                setFilters((prev: ColumnFiltersState) => {
+                                    const v = e.target.value || '';
+                                    const next = prev.filter((f) => f.id !== 'community');
+                                    if (v) next.push({ id: 'community', value: v });
+                                    return next;
+                                })
+                            }
+                            style={{
+                                width: '100%',
+                                padding: '8px 10px',
+                                borderRadius: 8,
+                                border: '1px solid #e5e5e5',
+                                background: '#fff',
+                            }}
+                        >
+                            <option value="">All</option>
+                            {allCommunities.map((c) => (
+                                <option key={c} value={c}>
+                                    {c}
+                                </option>
+                            ))}
+                        </select>
 
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <SmallCard title="TOTAL REVENUE" value={fmt(totals.rev)} />
+                            <SmallCard title="TOTAL EXPENSE" value={fmt(totals.exp)} />
+                            <SmallCard title="NET" value={fmt(totals.net)} />
+                        </div>
+                    </div>
+
+                    {/* RIGHT: Category totals + Y/Q/M */}
+                    <div>
+                        <div
+                            style={{
+                                maxWidth: RIGHT_PANEL_MAX,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 14,
+                            }}
+                        >
+                            {/* Revenue category totals */}
+                            <div>
+                                <Label>Revenue Category Totals</Label>
+                                <div
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: `${CATEGORY_WIDTH_NORMAL}px 120px`, // ✅ fixed
+                                        gap: 10,
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <MultiSelectGrouped
+                                        placeholder="Pick category"
+                                        groups={revenueGroups}
+                                        selected={revSel}
+                                        onChange={setRevSel}
+                                        width={CATEGORY_WIDTH_NORMAL}
+                                    />
+                                    <div
+                                        style={{
+                                            border: '1px solid #e5e5e5',
+                                            borderRadius: 8,
+                                            padding: '8px 10px',
+                                            background: '#fff',
+                                            fontWeight: 600,
+                                            width: 120,
+                                        }}
+                                    >
+                                        {fmt(revCatTotal)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Expense category totals */}
+                            <div>
+                                <Label>Expense Category Totals</Label>
+                                <div
+                                    style={{
+                                        display: 'grid',
+                                        gridTemplateColumns: `${CATEGORY_WIDTH_NORMAL}px 120px`, // ✅ fixed
+                                        gap: 10,
+                                        alignItems: 'center',
+                                    }}
+                                >
+                                    <MultiSelectGrouped
+                                        placeholder="Pick category"
+                                        groups={expenseGroups}
+                                        selected={expSel}
+                                        onChange={setExpSel}
+                                        width={CATEGORY_WIDTH_NORMAL}
+                                    />
+                                    <div
+                                        style={{
+                                            border: '1px solid #e5e5e5',
+                                            borderRadius: 8,
+                                            padding: '8px 10px',
+                                            background: '#fff',
+                                            fontWeight: 600,
+                                            width: 120,
+                                        }}
+                                    >
+                                        {fmt(expCatTotal)}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Year / Quarter / Month */}
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
+                                <div>
+                                    <Label>Year</Label>
+                                    <select
+                                        value={String(selected.year || '')}
+                                        onChange={(e) =>
+                                            setFilters((f: ColumnFiltersState) => {
+                                                const next = f.filter((x) => x.id !== 'year');
+                                                if (e.target.value) next.push({ id: 'year', value: Number(e.target.value) });
+                                                return next;
+                                            })
+                                        }
+                                        style={{
+                                            width: COMPACT,
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid #e5e5e5',
+                                            background: '#fff',
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        {allYears.map((y) => (
+                                            <option key={y} value={y}>
+                                                {y}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <Label>Quarter</Label>
+                                    <select
+                                        value={selected.quarter}
+                                        onChange={(e) =>
+                                            setFilters((f: ColumnFiltersState) => {
+                                                const next = f.filter((x) => x.id !== 'quarter');
+                                                if (e.target.value) next.push({ id: 'quarter', value: e.target.value });
+                                                return next;
+                                            })
+                                        }
+                                        style={{
+                                            width: COMPACT,
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid #e5e5e5',
+                                            background: '#fff',
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        {allQuarters.map((q) => (
+                                            <option key={q} value={q}>
+                                                {q}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <Label>Month</Label>
+                                    <select
+                                        value={selected.month}
+                                        onChange={(e) =>
+                                            setFilters((f: ColumnFiltersState) => {
+                                                const next = f.filter((x) => x.id !== 'month');
+                                                if (e.target.value) next.push({ id: 'month', value: e.target.value });
+                                                return next;
+                                            })
+                                        }
+                                        style={{
+                                            width: COMPACT,
+                                            padding: '8px 10px',
+                                            borderRadius: 8,
+                                            border: '1px solid #e5e5e5',
+                                            background: '#fff',
+                                        }}
+                                    >
+                                        <option value="">All</option>
+                                        {allMonths.map((m) => (
+                                            <option key={m} value={m}>
+                                                {m}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            )}
+
+
+            {/* GRID */}
+            <div
+                id="grid-wrapper"
+                style={
+                    isFullScreen
+                        ? {
+                            position: 'fixed',
+                            left: fsLeft,
+                            right: 16,
+                            top: contentTop + dockH + 10,
+                            bottom: 16,
+                            zIndex: 40,
+                            background: '#fff',
+                            borderRadius: 8,
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+                            overflow: 'hidden',
+                            paddingTop: 0,
+                        }
+                        : { marginTop: -6 }
+                }
+            >
                 <BudgetGrid
                     rows={rows}
                     filters={filters}
@@ -769,15 +1057,15 @@ export default function AgmBudgetPage() {
                         })
                     }
                     toolbarIds={[]}
-                    // SAFE: emitted by child after render; parent guards against pre-mount updates
                     onGroupingAfterRender={handleGroupingAfterRender}
+                    fillViewport={isFullScreen}
+                    toolbarRight={toolbarRight}
                 />
             </div>
 
-            {loading && <div style={{ color: '#6b7a8a' }}>Loading data…</div>}
-            {error && <div style={{ color: 'crimson' }}>{error}</div>}
+            {!isFullScreen && loading && <div style={{ color: '#6b7a8a' }}>Loading data…</div>}
+            {!isFullScreen && error && <div style={{ color: 'crimson' }}>{error}</div>}
 
-            {/* AI Drawer (540px) — non-blocking, hydration-safe */}
             <AIInsightsPanel
                 open={aiOpen}
                 onClose={() => setAiOpen(false)}

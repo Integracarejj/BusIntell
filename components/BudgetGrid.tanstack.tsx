@@ -69,11 +69,17 @@ type Props = {
     // Push edits up if the page is managing row state
     onUpdateAmount?: (rowIndex: number, newValue: number) => void;
 
-    // Legacy toolbar (kept for future grouping/AI actions, page hides via CSS)
+    // Legacy toolbar (kept for future grouping/AI actions, page may toggle visibility via CSS)
     toolbarIds?: Array<'year' | 'quarter' | 'month' | 'budgetType' | 'category'>;
 
     // SAFETY: emit grouping keys after render only (prevents render-phase updates)
     onGroupingAfterRender?: (keys: string[]) => void;
+
+    // When true, let the scroll container fill its parent (used by full-screen mode)
+    fillViewport?: boolean;
+
+    // NEW: optional right-side content in the grid toolbar (e.g., AI + Full Screen buttons)
+    toolbarRight?: React.ReactNode;
 };
 
 /* ----------------------------------------------------------------------------
@@ -188,6 +194,8 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
         onUpdateAmount,
         toolbarIds = ['year', 'quarter', 'budgetType', 'category'],
         onGroupingAfterRender,
+        fillViewport = false,
+        toolbarRight,
     }: Props,
     ref
 ) {
@@ -204,13 +212,15 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
     const controlled = !!filters && !!onFiltersChange;
     const [uncontrolledFilters, setUncontrolledFilters] = React.useState<ColumnFiltersState>(initialFilters);
     const effectiveFilters = controlled ? (filters as ColumnFiltersState) : uncontrolledFilters;
-    const setEffectiveFilters = controlled ? (onFiltersChange as NonNullable<Props['onFiltersChange']>) : setUncontrolledFilters;
+    const setEffectiveFilters = controlled
+        ? (onFiltersChange as NonNullable<Props['onFiltersChange']>)
+        : setUncontrolledFilters;
 
     // Grouping + row expansion
     const [grouping, setGrouping] = React.useState<string[]>([]);
     const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
 
-    // SAFETY: mark component mounted before any effects from children/React Table might fire.
+    // SAFETY: mark component mounted before any effects might fire.
     const mountedRef = React.useRef(false);
     React.useLayoutEffect(() => {
         mountedRef.current = true;
@@ -296,7 +306,7 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
     // Visual theme
     const HEADER_DIVIDER = '#d0d7df'; // header bottom + header vertical
     const BODY_LINE = '#e1e7ec'; // body vertical/horizontal
-    const HEADER_BG = '#f7f9fb'; // Option A subtle gray
+    const HEADER_BG = '#f7f9fb'; // subtle gray
 
     // Grouping UX
     const groupableColumns: { id: string; label: string }[] = [
@@ -309,31 +319,47 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
         { id: 'budgetType', label: 'Budget Type' },
     ];
 
-    const toggleGroup = (id: string) => setGrouping((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
+    const toggleGroup = (id: string) =>
+        setGrouping((prev) => (prev.includes(id) ? prev.filter((g) => g !== id) : [...prev, id]));
     const clearGrouping = () => setGrouping([]);
 
     // Render
     return (
-        <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {/* Legacy grid toolbar (hidden by page CSS, but kept for future actions) */}
-            <ToolbarFilters
-                ids={toolbarIds as any}
-                // use the same state abstraction the component already supports
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                filters={effectiveFilters as any}
-                // Route toolbar updates through the guarded handler as well
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                setFilters={onColumnFiltersChangeSafe as any}
-                onClear={() => onColumnFiltersChangeSafe([] as any)}
-                onExport={() => {
-                    const visibleCols = table.getVisibleLeafColumns();
-                    const keys = visibleCols.map((c) => (c.columnDef as any).accessorKey ?? c.id);
-                    const filtered = table.getFilteredRowModel().rows.map((r) => r.original as BudgetRow);
-                    const csv = toCsv(filtered, keys);
-                    downloadBlob(`budget-grid-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+        <section style={{ display: 'flex', flexDirection: 'column', gap: 10, height: fillViewport ? '100%' : 'auto' }}>
+            {/* Grid toolbar row (LEFT: existing ToolbarFilters, RIGHT: injected buttons like AI + Full Screen) */}
+            <div
+                className="grid-toolbar"
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    flexWrap: 'wrap',
                 }}
-                table={table as any}
-            />
+            >
+                <div style={{ flex: '1 1 auto', minWidth: 520 }}>
+                    <ToolbarFilters
+                        ids={toolbarIds as any}
+                        // use the same state abstraction the component already supports
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        filters={effectiveFilters as any}
+                        // Route toolbar updates through the guarded handler
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        setFilters={onColumnFiltersChangeSafe as any}
+                        onClear={() => onColumnFiltersChangeSafe([] as any)}
+                        onExport={() => {
+                            const visibleCols = table.getVisibleLeafColumns();
+                            const keys = visibleCols.map((c) => (c.columnDef as any).accessorKey ?? c.id);
+                            const filtered = table.getFilteredRowModel().rows.map((r) => r.original as BudgetRow);
+                            const csv = toCsv(filtered, keys);
+                            downloadBlob(`budget-grid-${new Date().toISOString().slice(0, 10)}.csv`, csv);
+                        }}
+                        table={table as any}
+                    />
+                </div>
+
+                {toolbarRight ? <div style={{ flex: '0 0 auto' }}>{toolbarRight}</div> : null}
+            </div>
 
             {/* Grouping bar */}
             <div
@@ -399,7 +425,8 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
                 ref={scrollRef}
                 style={{
                     overflow: 'auto',
-                    maxHeight: '70vh',
+                    // When full-screen mode is active, let this container fill its parent wrapper.
+                    ...(fillViewport ? { height: '100%', maxHeight: '100%' } : { maxHeight: '70vh' }),
                     border: '1px solid var(--border, #ddd)',
                     borderRadius: 6,
                     background: '#fff',
@@ -498,8 +525,7 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
                                         />
                                     );
                                 const opts = getColumnOptions(table, colId);
-                                const isSelect =
-                                    ['community', 'category', 'subCategory', 'budgetType', 'year', 'quarter', 'month'].includes(colId);
+                                const isSelect = ['community', 'category', 'subCategory', 'budgetType', 'year', 'quarter', 'month'].includes(colId);
                                 return (
                                     <th
                                         key={`flt-${colId}`}
@@ -607,9 +633,7 @@ const BudgetGrid = React.forwardRef<any, Props>(function BudgetGrid(
                                                         {expandedNow ? '–' : '+'}
                                                     </button>
                                                     {String(groupVal ?? '')}{' '}
-                                                    <span style={{ color: '#64748b', fontWeight: 400 }}>
-                                                        ({row.subRows?.length ?? 0})
-                                                    </span>
+                                                    <span style={{ color: '#64748b', fontWeight: 400 }}>({row.subRows?.length ?? 0})</span>
                                                 </td>
                                             );
                                         }
