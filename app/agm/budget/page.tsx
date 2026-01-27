@@ -848,7 +848,7 @@ export default function AgmBudgetPage() {
                             ))}
                         </select>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
                             <SmallCard title="TOTAL REVENUE" value={fmt(totals.rev)} />
                             <SmallCard title="TOTAL EXPENSE" value={fmt(totals.exp)} />
                             <SmallCard title="NET" value={fmt(totals.net)} />
